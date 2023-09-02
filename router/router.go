@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go-template/controller"
 	"go-template/global"
@@ -30,7 +29,7 @@ func InitApiRouter() *gin.Engine {
 	v1 := router.Group("api/v1")
 	{
 		v1.GET("ping", func(ctx *gin.Context) {
-			utils.Success(ctx, "success/", "pong")
+			utils.Success(ctx, "pong", nil)
 		})
 		v1.POST("register", controller.RegisterController)
 		v1.POST("login", controller.LoginController)
@@ -38,13 +37,20 @@ func InitApiRouter() *gin.Engine {
 		// ===========================================================================================
 		//需要进行认证的
 		authored := v1.Group("/")
+		authored.Use(middleware.JWT())
 		{
-			authored.Use(middleware.JWT())
-			authored.GET("authored", func(ctx *gin.Context) {
-				user, _ := utils.GetUser(ctx)
-				fmt.Println(user)
-				utils.Success(ctx, "authored", nil)
-			})
+			authored.GET("user", controller.GetUserController)
+		}
+		// =================================================================== 管理员赋予权限的相关curd
+		admin := v1.Group("/admin")
+		{
+			admin.Use(middleware.JWT(), middleware.IsAdmin())
+			//赋予权限
+			admin.PUT("auth", controller.AddAuthController)
+			//删除权限
+			admin.DELETE("auth", controller.DelAuthController)
+			//创建新的权限
+			admin.POST("auth", controller.CreateAuthController)
 		}
 
 	}

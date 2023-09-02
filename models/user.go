@@ -18,8 +18,12 @@ const (
 type User struct {
 	gorm.Model
 	UserName string `json:"username" gorm:"not null;index;comment:用户名称;"`
-	Password string `json:"password" gorm:"not null;default:'';comment:用户密码"`
+	Name     string `json:"name" gorm:"default:'';comment:姓名"`
+	Password string `json:"password" gorm:"not null;comment:用户密码"`
 	Email    string `json:"email" gorm:"not null;unique;default:'';comment:邮箱"`
+	Avatar   string `json:"avatar" gorm:"default:'';comment:头像"`
+	Sex      int    `json:"sex" gorm:"default:0;comment:性别"`
+	Desc     string `json:"desc" gorm:"default:'';comment:描述"`
 	Roles    []Role `gorm:"many2many:user_roles;"`
 }
 

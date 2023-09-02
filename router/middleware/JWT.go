@@ -39,9 +39,10 @@ func JWT() gin.HandlerFunc {
 
 		*/
 		utils.SetUser(c, &utils.UserInfo{
-			ID:       claims.Id,
-			UserName: claims.Username,
-			Email:    claims.Email,
+			ID:        claims.Id,
+			UserName:  claims.Username,
+			Email:     claims.Email,
+			Authority: claims.Authority,
 		})
 		c.Next()
 	}

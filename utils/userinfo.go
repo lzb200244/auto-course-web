@@ -7,9 +7,10 @@ import (
 const UserKey = "user"
 
 type UserInfo struct {
-	ID       uint   `json:"id"`
-	UserName string `json:"username"`
-	Email    string `json:"email"`
+	ID        uint   `json:"id"`
+	UserName  string `json:"username"`
+	Email     string `json:"email"`
+	Authority int    `json:"authority"`
 }
 
 /*

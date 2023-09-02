@@ -5,6 +5,7 @@ import "reflect"
 /*
 Created by 斑斑砖 on 2023/8/14.
 Description：
+	进行校验参数
 */
 
 type Register struct {

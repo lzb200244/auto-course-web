@@ -1,5 +1,5 @@
 project:
-  name: "go-template"
+  name: "course"
   domain: "localhost"
   port: 8080
   logDir: "./logs"
@@ -19,7 +19,7 @@ mysql:
   host: 'localhost'
   port: '3306'
   config: 'charset=utf8mb4&parseTime=True&loc=Local'
-  db-name: 'gintemplate'
+  db-name: 'course'
   username: 'root'
   password: 'root'
   prefix: "t_" # 全局表前缀，单独定义 TableName 则不生效
@@ -29,7 +29,7 @@ mysql:
   max-open-conn: 100
   log-mode: info
   enable_file_log_writer: true
-  log_filename:  mysql.log
+  log_filename: mysql.log
 #  log-zap: false
 jwt:
   expire: 168 # hour 7*24

@@ -39,8 +39,11 @@ const (
 	LOGOUT                 Code = 1208
 
 	// code=6000... 权限模块的错误
-	ERROR_ROLE_NAME_EXIST Code = 60010
-	ERROR_ROLE_NOT_EXIST  Code = 60011
+	ERROR_ROLE_NAME_EXIST   Code = 60010
+	ERROR_ROLE_NOT_EXIST    Code = 60011
+	ERROR_ADD_AUTH          Code = 60012
+	ERROR_DEL_AUTH          Code = 60013
+	ERROR_CREATE_PERMISSION Code = 60014
 
 	// code=7000 ... 页面模块的错误
 )
@@ -75,8 +78,11 @@ var codeMsg = map[Code]string{
 	FORCE_OFFLINE:          "您已被强制下线",
 	LOGOUT:                 "您已退出登录",
 
-	ERROR_ROLE_NAME_EXIST: "该角色名已经存在",
-	ERROR_ROLE_NOT_EXIST:  "该角色不存在",
+	ERROR_ADD_AUTH:          "添加权限失败",
+	ERROR_DEL_AUTH:          "删除权限失败",
+	ERROR_CREATE_PERMISSION: "创建权限失败",
+	ERROR_ROLE_NAME_EXIST:   "该角色名已经存在",
+	ERROR_ROLE_NOT_EXIST:    "该角色不存在",
 }
 
 func GetMsg(code Code) string {
