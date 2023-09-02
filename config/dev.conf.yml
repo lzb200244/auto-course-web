@@ -1,0 +1,37 @@
+project:
+  name: "go-template"
+  domain: "localhost"
+  port: 8080
+  logDir: "./logs"
+  mode: dev
+log:
+  level: info # 日志等级
+  root_dir: ./logs # 日志根目录
+  filename: app.log # 日志文件名称
+  format:  # 写入格式 可选json
+  show_line: true # 是否显示调用行
+  max_backups: 3 # 旧文件的最大个数
+  max_size: 500 # 日志文件最大大小（MB）
+  max_age: 28 # 旧文件的最大保留天数
+  compress: true # 是否压缩
+
+mysql:
+  host: 'localhost'
+  port: '3306'
+  config: 'charset=utf8mb4&parseTime=True&loc=Local'
+  db-name: 'gintemplate'
+  username: 'root'
+  password: 'root'
+  prefix: "t_" # 全局表前缀，单独定义 TableName 则不生效
+  singular: true # 是否开启全局禁用复数，true表示不开启
+  engine: "" # 引擎，默认InnoDB
+  max-idle-conn: 20
+  max-open-conn: 100
+  log-mode: info
+  enable_file_log_writer: true
+  log_filename:  mysql.log
+#  log-zap: false
+jwt:
+  expire: 168 # hour 7*24
+  issuer: "斑斑砖"
+  secret: "lzb200244"
