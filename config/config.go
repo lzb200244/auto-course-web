@@ -13,4 +13,6 @@ type Configuration struct {
 	Log     autoload.Log     `mapstructure:"log" json:"log" yaml:"log"`
 	//jwt配置项
 	Jwt autoload.Jwt `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
+	//七牛云配置
+	Qiniu autoload.Qiniu `mapstructure:"qiniu" json:"qiniu" yaml:"qiniu"`
 }

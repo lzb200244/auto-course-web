@@ -4,8 +4,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"go-template/controller"
 	"go-template/global"
+	"go-template/global/code"
 	"go-template/router/middleware"
 	"go-template/utils"
+	"go-template/utils/qiniu"
 )
 
 /*
@@ -34,13 +36,24 @@ func InitApiRouter() *gin.Engine {
 		v1.POST("register", controller.RegisterController)
 		v1.POST("login", controller.LoginController)
 
-		// ===========================================================================================
+		// ====================================================================
 		//需要进行认证的
 		authored := v1.Group("/")
+
 		authored.Use(middleware.JWT())
 		{
 			authored.GET("user", controller.GetUserController)
+			authored.PUT("user", controller.UpdateInfoController)
 		}
+
+		// =================================================================== 获取凭证
+		credit := v1.Group("/credit")
+		{
+			credit.GET("kodo", func(context *gin.Context) {
+				utils.Success(context, code.GetMsg(code.OK), qiniu.GetCredits())
+			})
+		}
+
 		// =================================================================== 管理员赋予权限的相关curd
 		admin := v1.Group("/admin")
 		{

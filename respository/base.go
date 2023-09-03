@@ -19,7 +19,7 @@ func Create[T any](data *T) error {
 
 // GetOne [单条]数据查询
 func GetOne[T any](data T, query string, args ...any) (T, error) {
-	err := global.MysqlDB.Preload("Roles").Where(query, args...).First(&data).Error
+	err := global.MysqlDB.Where(query, args...).First(&data).Error
 	if err != nil {
 		return data, err
 	}

@@ -24,7 +24,8 @@ func RegisterController(ctx *gin.Context) {
 	}
 	_, c := service.Register(validate.Username, validate.Password, validate.Email)
 	if c != code.OK {
-		utils.Fail(ctx, c, err.Error(), nil)
+
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
 	utils.Success(ctx, code.GetMsg(c), nil)
@@ -51,6 +52,24 @@ func GetUserController(ctx *gin.Context) {
 	user, _ := utils.GetUser(ctx)
 	//2. 无需进行校验， 调用服务
 	data, c := service.GetUserInfo(int(user.ID), user.Authority)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), data)
+}
+
+// UpdateInfoController 修改用户信息
+func UpdateInfoController(ctx *gin.Context) {
+	user, _ := utils.GetUser(ctx)
+	//参数校验
+	validate, err := utils.BindValidJson[request.UserInfo](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	//调用服务
+	data, c := service.UpdateInfo(user.ID, &validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return

@@ -25,3 +25,11 @@ func (r Register) IsEmpty() bool {
 func (r Login) IsEmpty() bool {
 	return reflect.DeepEqual(r, Login{})
 }
+
+type UserInfo struct {
+	Name   string `json:"name" label:"昵称"`
+	Sex    int    `json:"sex" label:"性别"`
+	Email  string `json:"email" label:"邮箱"`
+	Desc   string `json:"desc" label:"描述"`
+	Avatar string `json:"avatar" label:"头像"`
+}

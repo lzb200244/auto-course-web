@@ -35,3 +35,6 @@ jwt:
   expire: 168 # hour 7*24
   issuer: "斑斑砖"
   secret: "lzb200244"
+qiniu:
+  access-key: "JfDRw6TYF7B-MXNjIivW1zxcZ6PrSHAHYksBcZOt"
+  secret-key: "ubXESZ4C3bpTh9P0yKTXmzOPXEbpaBgvzFkecWIu"

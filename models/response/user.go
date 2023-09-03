@@ -16,7 +16,7 @@ type UserResponse struct {
 	Avatar     string   `json:"avatar"`
 	Roles      []string `json:"roles"`
 	Permission []int    `json:"permission"`
-	Token      string   `json:"token"`
+	Token      string   `json:"access_token"`
 }
 
 func NewUserResponse(ID uint, userName, name, email, desc, avatar, token string, sex int, roleName []string, permission []int) *UserResponse {

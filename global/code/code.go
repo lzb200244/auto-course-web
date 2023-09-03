@@ -27,6 +27,8 @@ const (
 	ERROR_EMAIL_SEND        Code = 1011
 	ERROR_EMAIL_HAS_SEND    Code = 1012
 	ERROR_VERIFICATION_CODE Code = 1013
+	ERROR_EMAIL_EXIST       Code = 1014
+	ERROR_UPDATE_USER       Code = 1015
 
 	// code = 1200.. 鉴权相关错误
 	ERROR_TOKEN_NOT_EXIST  Code = 1201
@@ -66,7 +68,9 @@ var codeMsg = map[Code]string{
 	ERROR_OLD_PASSWORD:      "旧密码不正确",
 	ERROR_EMAIL_SEND:        "邮件发送失败",
 	ERROR_EMAIL_HAS_SEND:    "已朝该邮箱发送验证码（有效期 15 分钟），请检查回收站",
+	ERROR_EMAIL_EXIST:       "邮箱已存在",
 	ERROR_VERIFICATION_CODE: "验证码错误",
+	ERROR_UPDATE_USER:       "用户更新失败",
 
 	// ###################################################################### 权限
 	ERROR_TOKEN_NOT_EXIST:  "TOKEN 不存在，请重新登陆",

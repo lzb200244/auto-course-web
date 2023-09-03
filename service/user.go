@@ -3,9 +3,11 @@ package service
 import (
 	"errors"
 	"fmt"
+	"go-template/global"
 	"go-template/global/auth"
 	"go-template/global/code"
 	"go-template/models"
+	"go-template/models/request"
 	"go-template/models/response"
 	"go-template/respository"
 	"go-template/utils"
@@ -50,17 +52,26 @@ func (r UserRegister) Do() (interface{}, code.Code) {
 
 // 用户是否存在
 func (r UserRegister) checkExists() (interface{}, code.Code) {
-	//TODO 邮箱为进行校验且存在unique
-	_, err := respository.GetOne(&models.User{}, "user_name", r.Username)
-	//不存在该用户
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, code.OK
+	_, usernameErr := respository.GetOne(&models.User{}, "user_name", r.Username)
+	if usernameErr != nil {
+		if errors.Is(usernameErr, gorm.ErrRecordNotFound) {
+			// 用户名可用
+			// 继续检查邮箱是否已存在
+			_, emailErr := respository.GetOne(&models.User{}, "email", r.Email)
+			if emailErr != nil {
+				if errors.Is(emailErr, gorm.ErrRecordNotFound) {
+					// 邮箱可用
+					return nil, code.OK
+				}
+			}
+			// 邮箱已存在
+			return nil, code.ERROR_EMAIL_EXIST
 		}
-		//数据库异常错误
+		// 处理其他用户名查询异常
 		return nil, code.ERROR_DB_OPE
 	}
-	return nil, code.ERROR_DB_OPE
+	// 用户名已存在
+	return nil, code.ERROR_USER_NAME_USED
 }
 
 // 创建用户
@@ -71,7 +82,7 @@ func (r UserRegister) create() (interface{}, code.Code) {
 	err := respository.Create(&user)
 
 	//给用户赋予权限
-	respository.AddUserAuthority(user, []int{int(auth.Student)})
+	respository.AddUserAuthority(user, []int{auth.Student})
 	if err != nil {
 		fmt.Println(err)
 		//TODO 记录日志
@@ -199,4 +210,50 @@ func (u *UserInfo) GetUserObj(userID, roleID int) (interface{}, code.Code) {
 		permission,
 	), code.OK
 
+}
+
+// ================================================================= 修改用户信息
+
+type UserInfoUpdate struct {
+	ID     uint   `json:"id" `
+	Name   string `json:"name" `
+	Sex    int    `json:"sex" `
+	Email  string `json:"email" `
+	Desc   string `json:"desc" `
+	Avatar string `json:"avatar"`
+}
+
+func NewUserInfoUpdate(userID uint, req *request.UserInfo) *UserInfoUpdate {
+	return &UserInfoUpdate{
+		ID:   userID,
+		Name: req.Name, Sex: req.Sex, Email: req.Email, Desc: req.Desc, Avatar: req.Avatar}
+}
+func UpdateInfo(userID uint, req *request.UserInfo) (interface{}, code.Code) {
+	return NewUserInfoUpdate(userID, req).Do()
+}
+
+// Do 更新用户信息
+func (u *UserInfoUpdate) Do() (interface{}, code.Code) {
+	var user *models.User
+	//1. 判断新的邮箱是否存在
+	if u.Email != "" {
+		_, err := respository.GetOne(&user, "email", u.Email)
+		if err == nil && user.ID != u.ID {
+			return nil, code.ERROR_EMAIL_EXIST
+		}
+
+	}
+	//2. 更新
+
+	err := global.MysqlDB.Model(
+		&models.User{
+			Model: gorm.Model{ID: u.ID},
+		},
+	).Updates(u).Error
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, code.ERROR_UPDATE_USER
+	}
+	return nil, code.OK
 }

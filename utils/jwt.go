@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"go-template/global"
+	"strings"
 	"time"
 )
 
@@ -36,7 +38,11 @@ func GenerateToken(id uint, username, email string, authority int) (string, erro
 }
 
 // ParseToken 验证用户token
-func ParseToken(token string) (*Claims, error) {
+func ParseToken(tokenHead string) (*Claims, error) {
+	if !strings.HasPrefix(tokenHead, "Bearer ") {
+		return nil, errors.New("无效的token")
+	}
+	var token = strings.SplitN(tokenHead, " ", 2)[1]
 	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return secret, nil
 	})
