@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"go-template/global"
-	"go-template/utils"
+	"auto-course-web/global"
+	"auto-course-web/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"

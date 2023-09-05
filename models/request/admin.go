@@ -19,3 +19,18 @@ type Auth struct {
 type Permission struct {
 	Name string `json:"name" validate:"required" label:"权限名称"`
 }
+type Meta struct {
+	Title       string `json:"title"  label:"标题"`
+	KeepAlive   bool   `json:"keepAlive"  label:"是否缓存"`
+	RequireAuth bool   `json:"requireAuth"  label:"是否需要认证"`
+}
+type Component struct {
+	Name      string `json:"name"  validate:"required" label:"组件名称"`
+	Path      string `json:"path"   validate:"required" label:"路由路径"`
+	Redirect  string `json:"redirect" label:"重定向路径"`
+	Component string `json:"component"  label:"组件名称" `
+	Meta      Meta   `json:"meta" validate:"required" label:"元信息"`
+	Disable   bool   `json:"disable"`
+	Limit     uint8  `json:"limit"   validate:"required" label:"权限限制"`
+	Parent    uint   `json:"parent"  label:"父级ID"`
+}

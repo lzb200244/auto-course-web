@@ -1,8 +1,8 @@
 package initialize
 
 import (
-	"go-template/global"
-	"go-template/models"
+	"auto-course-web/global"
+	"auto-course-web/models"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

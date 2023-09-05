@@ -1,16 +1,17 @@
 package service
 
 import (
+	"auto-course-web/global"
+	"auto-course-web/global/auth"
+	"auto-course-web/global/code"
+	"auto-course-web/models"
+	"auto-course-web/models/request"
+	"auto-course-web/models/response"
+	"auto-course-web/respository"
+	"auto-course-web/utils"
 	"errors"
 	"fmt"
-	"go-template/global"
-	"go-template/global/auth"
-	"go-template/global/code"
-	"go-template/models"
-	"go-template/models/request"
-	"go-template/models/response"
-	"go-template/respository"
-	"go-template/utils"
+
 	"gorm.io/gorm"
 	"sync"
 )

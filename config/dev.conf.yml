@@ -38,3 +38,4 @@ jwt:
 qiniu:
   access-key: "JfDRw6TYF7B-MXNjIivW1zxcZ6PrSHAHYksBcZOt"
   secret-key: "ubXESZ4C3bpTh9P0yKTXmzOPXEbpaBgvzFkecWIu"
+  bucket: "lzb200244"

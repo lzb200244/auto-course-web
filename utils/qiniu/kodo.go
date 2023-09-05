@@ -1,9 +1,9 @@
 package qiniu
 
 import (
+	"auto-course-web/global"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
 	"github.com/qiniu/go-sdk/v7/storage"
-	"go-template/global"
 )
 
 /*

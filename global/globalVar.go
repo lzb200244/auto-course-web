@@ -1,7 +1,7 @@
 package global
 
 import (
-	"go-template/config"
+	"auto-course-web/config"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

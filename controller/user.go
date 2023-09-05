@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"auto-course-web/global/code"
+	"auto-course-web/models/request"
+	"auto-course-web/service"
+	"auto-course-web/utils"
 	"github.com/gin-gonic/gin"
-	"go-template/global/code"
-	"go-template/models/request"
-	"go-template/service"
-	"go-template/utils"
 )
 
 /*

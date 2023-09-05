@@ -1,4 +1,4 @@
-module go-template
+module auto-course-web
 
 go 1.20
 

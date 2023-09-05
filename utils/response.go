@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"auto-course-web/global/code"
 	"github.com/gin-gonic/gin"
-	"go-template/global/code"
 	"net/http"
 )
 

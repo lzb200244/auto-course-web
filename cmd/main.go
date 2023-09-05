@@ -1,9 +1,9 @@
 package main
 
 import (
-	"go-template/global"
-	"go-template/initialize"
-	"go-template/router"
+	"auto-course-web/global"
+	"auto-course-web/initialize"
+	"auto-course-web/router"
 )
 
 func main() {

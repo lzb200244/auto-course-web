@@ -1,7 +1,7 @@
 package respository
 
 import (
-	"go-template/global"
+	"auto-course-web/global"
 )
 
 /*

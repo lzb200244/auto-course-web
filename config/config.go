@@ -1,8 +1,8 @@
 package config
 
 import (
-	"go-template/config/autoload"
-	"go-template/config/autoload/db"
+	"auto-course-web/config/autoload"
+	"auto-course-web/config/autoload/db"
 )
 
 type Configuration struct {

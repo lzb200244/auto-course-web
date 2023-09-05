@@ -1,9 +1,9 @@
 package initialize
 
 import (
+	"auto-course-web/config"
+	"auto-course-web/global"
 	"github.com/spf13/viper"
-	"go-template/config"
-	"go-template/global"
 )
 
 // InitConfig 初始化viper加载配置文件

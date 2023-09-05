@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"auto-course-web/global"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"go-template/global"
 	"strings"
 	"time"
 )

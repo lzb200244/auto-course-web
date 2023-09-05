@@ -1,13 +1,14 @@
 package router
 
 import (
+	"auto-course-web/controller"
+	"auto-course-web/global"
+	"auto-course-web/global/code"
+	"auto-course-web/models"
+	"auto-course-web/router/middleware"
+	"auto-course-web/utils"
+	"auto-course-web/utils/qiniu"
 	"github.com/gin-gonic/gin"
-	"go-template/controller"
-	"go-template/global"
-	"go-template/global/code"
-	"go-template/router/middleware"
-	"go-template/utils"
-	"go-template/utils/qiniu"
 )
 
 /*
@@ -44,8 +45,29 @@ func InitApiRouter() *gin.Engine {
 		{
 			authored.GET("user", controller.GetUserController)
 			authored.PUT("user", controller.UpdateInfoController)
-		}
+			authored.GET("permission", func(context *gin.Context) {
+				var routes []*models.Router
+				user, _ := utils.GetUser(context)
+				global.MysqlDB.
+					Where("`limit`<=?", user.Authority).Find(&routes)
 
+				mpRoute := make(map[int]*models.Router, len(routes))
+				for _, route := range routes {
+					m := mpRoute[int(route.Parent)]
+					if m != nil {
+						m.Children = append(m.Children, route)
+					}
+					mpRoute[int(route.ID)] = route
+				}
+				routes = []*models.Router{}
+				if mpRoute[1] != nil && mpRoute[1].Children != nil {
+					routes = mpRoute[1].Children
+				}
+				//返回根下的所有路由
+				utils.Success(context, code.GetMsg(code.OK), routes)
+			})
+
+		}
 		// =================================================================== 获取凭证
 		credit := v1.Group("/credit")
 		{
@@ -57,6 +79,9 @@ func InitApiRouter() *gin.Engine {
 		// =================================================================== 管理员赋予权限的相关curd
 		admin := v1.Group("/admin")
 		{
+			//创建新的页面
+			admin.POST("page", controller.CreatePageController)
+			admin.PUT("page", controller.ModifyPageController)
 			admin.Use(middleware.JWT(), middleware.IsAdmin())
 			//赋予权限
 			admin.PUT("auth", controller.AddAuthController)
@@ -64,6 +89,7 @@ func InitApiRouter() *gin.Engine {
 			admin.DELETE("auth", controller.DelAuthController)
 			//创建新的权限
 			admin.POST("auth", controller.CreateAuthController)
+
 		}
 
 	}

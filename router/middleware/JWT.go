@@ -1,9 +1,10 @@
 package middleware
 
 import (
+	"auto-course-web/global/code"
+	"auto-course-web/utils"
 	"github.com/gin-gonic/gin"
-	"go-template/global/code"
-	"go-template/utils"
+
 	"time"
 )
 

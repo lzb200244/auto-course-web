@@ -1,9 +1,11 @@
 package service
 
 import (
-	"go-template/global/code"
-	"go-template/models"
-	"go-template/respository"
+	"auto-course-web/global"
+	"auto-course-web/global/code"
+	"auto-course-web/models"
+	"auto-course-web/models/request"
+	"auto-course-web/respository"
 )
 
 /*
@@ -81,4 +83,70 @@ func (p Permission) Do(name string) (interface{}, code.Code) {
 		return nil, code.ERROR_CREATE_PERMISSION
 	}
 	return nil, code.OK
+}
+
+// ================================================================== 创建新的页面
+
+type Component struct {
+	data *request.Component
+}
+
+func NewComponent(data *request.Component) *Component {
+	return &Component{
+		data: data,
+	}
+}
+func CreatePage(data *request.Component) (interface{}, code.Code) {
+	return NewComponent(data).Do()
+}
+func (c Component) Do() (interface{}, code.Code) {
+	comp := models.Router{
+		Name:      c.data.Name,
+		Component: c.data.Component,
+		Path:      c.data.Path,
+		Redirect:  c.data.Redirect,
+		Parent:    c.data.Parent,
+		Limit:     c.data.Limit,
+		Meta: models.Meta{
+			Title:       c.data.Meta.Title,
+			KeepAlive:   c.data.Meta.KeepAlive,
+			RequireAuth: c.data.Meta.RequireAuth,
+		},
+	}
+	if err := respository.Create(&comp); err != nil {
+
+		return nil, code.ERROR_DB_OPE
+	}
+	return nil, code.OK
+
+}
+
+type UpdateComponent struct {
+	data *request.Component
+}
+
+func UpdatePage(data *request.Component) (interface{}, code.Code) {
+	return NewComponent(data).Do()
+}
+func (c UpdateComponent) Do() (interface{}, code.Code) {
+	comp := models.Router{
+		Name:      c.data.Name,
+		Component: c.data.Component,
+		Path:      c.data.Path,
+		Redirect:  c.data.Redirect,
+		Parent:    c.data.Parent,
+		Disable:   c.data.Disable,
+		Limit:     c.data.Limit,
+		Meta: models.Meta{
+			Title:       c.data.Meta.Title,
+			KeepAlive:   c.data.Meta.KeepAlive,
+			RequireAuth: c.data.Meta.RequireAuth,
+		},
+	}
+	if err := global.MysqlDB.Updates(&comp).Error; err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+
+	return nil, code.OK
+
 }

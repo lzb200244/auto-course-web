@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"auto-course-web/global/code"
+	"auto-course-web/models/request"
+	"auto-course-web/service"
+	"auto-course-web/utils"
 	"github.com/gin-gonic/gin"
-	"go-template/global/code"
-	"go-template/models/request"
-	"go-template/service"
-	"go-template/utils"
 )
 
 /*
@@ -62,5 +62,41 @@ func CreateAuthController(ctx *gin.Context) {
 		return
 	}
 	utils.Success(ctx, code.GetMsg(c), nil)
+}
 
+// ============================================================== 创建新的页面
+
+func CreatePageController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.Component](ctx)
+	//参数校验失败
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	_, c := service.CreatePage(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+
+	}
+	utils.Success(ctx, code.GetMsg(c), nil)
+
+}
+
+// ============================================================== 修改页面
+
+func ModifyPageController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.Component](ctx)
+	//参数校验失败
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	_, c := service.UpdatePage(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+
+	}
+	utils.Success(ctx, code.GetMsg(c), nil)
 }

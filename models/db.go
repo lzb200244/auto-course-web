@@ -1,7 +1,7 @@
 package models
 
 import (
-	"go-template/global"
+	"auto-course-web/global"
 	"go.uber.org/zap"
 	"os"
 )
@@ -15,7 +15,7 @@ Description：
 func Migrate() {
 
 	err := global.MysqlDB.AutoMigrate(
-		User{}, Role{}, Permission{},
+		User{}, Role{}, Permission{}, &Router{},
 	)
 	/*
 		//创建角色 #########################################################################################

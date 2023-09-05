@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"auto-course-web/global"
 	"github.com/gin-gonic/gin"
-	"go-template/global"
 	"go.uber.org/zap"
 )
 

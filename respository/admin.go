@@ -1,8 +1,8 @@
 package respository
 
 import (
-	"go-template/global"
-	"go-template/models"
+	"auto-course-web/global"
+	"auto-course-web/models"
 )
 
 /*
