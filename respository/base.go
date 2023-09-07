@@ -26,6 +26,15 @@ func GetOne[T any](data T, query string, args ...any) (T, error) {
 	return data, err
 }
 
+// Exist [单条]数据是否存在
+func Exist[T any](data T, query string, args ...any) (bool, error) {
+	var count int64
+	if err := global.MysqlDB.Model(&data).Where(query, args...).Count(&count).Error; err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // Update [单行]更新: 传入对应结构体[传递主键用] 和 带有对应更新字段值的[结构体]，结构体不更新零值
 func Update[T any](data *T, slt ...string) {
 	if len(slt) > 0 {
@@ -47,23 +56,31 @@ func UpdatesMap[T any](data *T, maps map[string]any, query string, args ...any) 
 }
 
 // Updates [批量]更新: 结构体的属性就是要更新的字段 (结构体不更新零值), 通过条件可以实现[单行]更新
-func Updates[T any](data *T, query string, args ...any) {
-	err := global.MysqlDB.Model(&data).Where(query, args...).Updates(&data).Error
-	if err != nil {
-		panic(err)
-	}
+func Updates[T any](model any, data *T, query string, args ...any) error {
+	return global.MysqlDB.Model(model).Where(query, args...).Updates(&data).Error
+
 }
 
 // List 数据列表
-func List[T any](data T, slt, order, query string, args ...any) T {
-	global.MysqlDB.Model(&data).Select(slt).Order(order)
+func List[T any](model any, data T, order, query string, args ...any) {
+	sql := global.MysqlDB.Model(model).Order(order)
 	if query != "" {
-		global.MysqlDB = global.MysqlDB.Where(query, args...)
+		sql.Where(query, args...)
 	}
-	if err := global.MysqlDB.Find(&data).Error; err != nil {
+	if err := sql.Find(&data).Error; err != nil {
 		panic(err)
 	}
-	return data
+}
+func Creat[T any](model string, data *T, query string, args ...any) (res *T, err error) {
+	sql := global.MysqlDB.Table(model)
+	if query != "" {
+		sql.Where(query, args...)
+	}
+	if err := sql.Create(&data).Error; err != nil {
+		return nil, err
+	}
+	return data, nil
+
 }
 
 // Delete [批量]删除数据, 通过条件控制可以删除单条数据

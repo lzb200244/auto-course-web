@@ -23,7 +23,7 @@ func AddAuthController(ctx *gin.Context) {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
-	_, c := service.SetAuth(validate.RoleID, validate.Permission)
+	_, c := service.SetAuth(&validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
@@ -40,7 +40,7 @@ func DelAuthController(ctx *gin.Context) {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
-	_, c := service.DelAuth(validate.RoleID, validate.PermissionID)
+	_, c := service.DelAuth(&validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
@@ -56,7 +56,7 @@ func CreateAuthController(ctx *gin.Context) {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
-	_, c := service.CreatePermission(validate.Name)
+	_, c := service.CreatePermission(&validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return

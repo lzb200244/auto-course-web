@@ -31,6 +31,6 @@ type Component struct {
 	Component string `json:"component"  label:"组件名称" `
 	Meta      Meta   `json:"meta" validate:"required" label:"元信息"`
 	Disable   bool   `json:"disable"`
-	Limit     uint8  `json:"limit"   validate:"required" label:"权限限制"`
+	Property  uint8  `json:"property"   validate:"required" label:"权限限制"`
 	Parent    uint   `json:"parent"  label:"父级ID"`
 }

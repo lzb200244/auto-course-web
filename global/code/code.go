@@ -48,6 +48,16 @@ const (
 	ERROR_CREATE_PERMISSION Code = 60014
 
 	// code=7000 ... 页面模块的错误
+
+	// code=8000 ... 课程模块的错误
+	ERROR_ADD_COURSE       Code = 8001
+	ERROR_DEL_COURSE       Code = 8002
+	ERROR_UPDATE_COURSE    Code = 8003
+	ERROR_COURSE_NOT_EXIST Code = 8004
+	ERROR_COURSE_EXIST     Code = 8005
+	// 课程分类相关
+	ERROR_COURSE_CATEGORY_NOT_EXIST Code = 8006
+	ERROR_COURSE_CATEGORY_EXIST     Code = 8007
 )
 
 var codeMsg = map[Code]string{
@@ -87,6 +97,16 @@ var codeMsg = map[Code]string{
 	ERROR_CREATE_PERMISSION: "创建权限失败",
 	ERROR_ROLE_NAME_EXIST:   "该角色名已经存在",
 	ERROR_ROLE_NOT_EXIST:    "该角色不存在",
+
+	//	###################################################################### 课程
+	ERROR_ADD_COURSE:       "添加课程失败",
+	ERROR_DEL_COURSE:       "删除课程失败",
+	ERROR_UPDATE_COURSE:    "更新课程失败",
+	ERROR_COURSE_NOT_EXIST: "该课程不存在",
+	ERROR_COURSE_EXIST:     "该课程已存在",
+	//	###################################################################### 课程分类
+	ERROR_COURSE_CATEGORY_NOT_EXIST: "该课程分类不存在",
+	ERROR_COURSE_CATEGORY_EXIST:     "该课程分类已存在",
 }
 
 func GetMsg(code Code) string {

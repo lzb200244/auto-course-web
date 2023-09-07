@@ -26,9 +26,6 @@ func GetUserInfo[T any](data T, query string, args ...any) (T, error) {
 		Preload("Roles").
 		Where(query, args...).
 		First(&data).Error
-	if err != nil {
-		return data, err
-	}
 	return data, err
 }
 

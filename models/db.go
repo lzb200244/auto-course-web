@@ -16,6 +16,7 @@ func Migrate() {
 
 	err := global.MysqlDB.AutoMigrate(
 		User{}, Role{}, Permission{}, &Router{},
+		&CourseCategory{}, &Course{},
 	)
 	/*
 		//创建角色 #########################################################################################

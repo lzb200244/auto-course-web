@@ -23,6 +23,16 @@ func BindValidJson[T any](c *gin.Context) (data T, err error) {
 	err = Validator.Validate(&data)
 	return data, err
 }
+func BindValidQuery[T any](c *gin.Context) (data T, err error) {
+	// Json 绑定
+	if err := c.ShouldBindQuery(&data); err != nil {
+		//一般都是非法请求参数了
+		global.Logger.Info("BindValidJson", zap.Error(err))
+	}
+	// 参数合法性校验
+	err = Validator.Validate(&data)
+	return data, err
+}
 
 //func Validate(c *gin.Context, data any) {
 //	validMsg := Validator.Validate(data)

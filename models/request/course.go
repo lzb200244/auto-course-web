@@ -1,0 +1,28 @@
+package request
+
+/*
+Created by 斑斑砖 on 2023/9/6.
+Description：
+	参数校验
+*/
+
+type Course struct {
+	ID      int    `json:"id"  label:"课程ID"`
+	Title   string `json:"title" validate:"required"  label:"课程名称"`
+	Desc    string `json:"desc"  validate:"required"  label:"课程描述"`
+	Teacher string `json:"teacher" validate:"required"  label:"讲师"`
+	Cover   string `json:"cover"  label:"封面" validate:"url"`
+	UserID  int    `json:"userID"  label:"用户ID"`
+	Code    string `json:"code"  label:"课程代码"`
+	//	容量
+	Capacity uint32 `json:"capacity" validate:"required;min=0"  label:"容量"`
+	//	学分
+	Credit uint32 `json:"credit" validate:"required;min=0"  label:"学分"`
+	//课程分类
+	CategoryID uint `json:"categoryID" validate:"required;"  label:"分类ID"`
+	//	上课时间段
+	Schedule string `json:"schedule" validate:"required"  label:"上课时间段"`
+	//	开课时间
+	StartTime int64 `json:"startTime" validate:"required"  label:"开课时间"`
+	EndTime   int64 `json:"endTime" validate:"required"  label:"结束时间"`
+}

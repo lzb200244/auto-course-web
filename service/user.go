@@ -1,7 +1,6 @@
 package service
 
 import (
-	"auto-course-web/global"
 	"auto-course-web/global/auth"
 	"auto-course-web/global/code"
 	"auto-course-web/models"
@@ -85,7 +84,7 @@ func (r UserRegister) create() (interface{}, code.Code) {
 	//给用户赋予权限
 	respository.AddUserAuthority(user, []int{auth.Student})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println(err, 2222)
 		//TODO 记录日志
 		return nil, code.ERROR_DB_OPE
 	}
@@ -107,13 +106,13 @@ func Login(username string, password string) (interface{}, code.Code) {
 	return NewUserLogin(username, password).Do()
 }
 func (r UserLogin) Do() (interface{}, code.Code) {
-	data, c := r.CheckAndSign()
+	data, c := r.checkAndSign()
 	if c != code.OK {
 		return nil, c
 	}
 	return data, code.OK
 }
-func (r UserLogin) CheckAndSign() (interface{}, code.Code) {
+func (r UserLogin) checkAndSign() (interface{}, code.Code) {
 
 	userObj, err := respository.GetUserInfo(&models.User{}, "user_name", r.Username)
 	if err != nil {
@@ -167,6 +166,7 @@ func (u *UserInfo) Do(userID, roleID int) (interface{}, code.Code) {
 	//1. 判断用户是否存在
 	userObj, c := u.GetUserObj(userID, roleID)
 	if c != code.OK {
+
 		return nil, c
 	}
 
@@ -175,22 +175,23 @@ func (u *UserInfo) Do(userID, roleID int) (interface{}, code.Code) {
 func (u *UserInfo) GetUserObj(userID, roleID int) (interface{}, code.Code) {
 	var wg sync.WaitGroup
 	var permission []int
-	var userObj *models.User
+	var userObj models.User
 	var err error
 	wg.Add(2)
 	//1. 获取用户信息
 	go func() {
 		defer wg.Done()
-		userObj, err = respository.GetUserInfo(&models.User{}, "id", userID)
+		userObj, err = respository.GetUserInfo(models.User{}, "id", userID)
+
 	}()
 	//2. 获取用户角色与权限
 	go func() {
 		defer wg.Done()
 		permission = respository.GetPermission(roleID)
+
 	}()
 	wg.Wait()
 	if err != nil {
-
 		//不存在该用户
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, code.ERROR_USER_NOT_EXIST
@@ -216,45 +217,30 @@ func (u *UserInfo) GetUserObj(userID, roleID int) (interface{}, code.Code) {
 // ================================================================= 修改用户信息
 
 type UserInfoUpdate struct {
-	ID     uint   `json:"id" `
-	Name   string `json:"name" `
-	Sex    int    `json:"sex" `
-	Email  string `json:"email" `
-	Desc   string `json:"desc" `
-	Avatar string `json:"avatar"`
+	data *request.UserInfo
 }
 
-func NewUserInfoUpdate(userID uint, req *request.UserInfo) *UserInfoUpdate {
+func NewUserInfoUpdate(req *request.UserInfo) *UserInfoUpdate {
 	return &UserInfoUpdate{
-		ID:   userID,
-		Name: req.Name, Sex: req.Sex, Email: req.Email, Desc: req.Desc, Avatar: req.Avatar}
+		data: req,
+	}
 }
 func UpdateInfo(userID uint, req *request.UserInfo) (interface{}, code.Code) {
-	return NewUserInfoUpdate(userID, req).Do()
+	return NewUserInfoUpdate(req).Do(userID)
 }
 
 // Do 更新用户信息
-func (u *UserInfoUpdate) Do() (interface{}, code.Code) {
-	var user *models.User
+func (u *UserInfoUpdate) Do(userID uint) (interface{}, code.Code) {
 	//1. 判断新的邮箱是否存在
-	if u.Email != "" {
-		_, err := respository.GetOne(&user, "email", u.Email)
-		if err == nil && user.ID != u.ID {
+	if u.data.Email != "" {
+		ok, _ := respository.Exist(&models.User{}, "email=? and id !=?", u.data.Email, userID)
+		if ok {
 			return nil, code.ERROR_EMAIL_EXIST
 		}
-
 	}
 	//2. 更新
-
-	err := global.MysqlDB.Model(
-		&models.User{
-			Model: gorm.Model{ID: u.ID},
-		},
-	).Updates(u).Error
-
-	if err != nil {
-		fmt.Println(err)
+	if err := respository.Updates(&models.User{}, &u.data, "id=?", userID); err != nil {
 		return nil, code.ERROR_UPDATE_USER
 	}
-	return nil, code.OK
+	return &u.data, code.OK
 }

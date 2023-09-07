@@ -27,9 +27,10 @@ func (r Login) IsEmpty() bool {
 }
 
 type UserInfo struct {
-	Name   string `json:"name" label:"昵称"`
-	Sex    int    `json:"sex" label:"性别"`
-	Email  string `json:"email" label:"邮箱"`
-	Desc   string `json:"desc" label:"描述"`
-	Avatar string `json:"avatar" label:"头像"`
+	ID     int    `json:"id" label:"用户ID" validate:"omitempty"`
+	Name   string `json:"name" label:"昵称" validate:"omitempty"`
+	Sex    int    `json:"sex" label:"性别" validate:"omitempty"`
+	Email  string `json:"email" label:"邮箱" validate:"email,omitempty"`
+	Desc   string `json:"desc" label:"描述" validate:"omitempty"`
+	Avatar string `json:"avatar" label:"头像"  validate:"url,omitempty"`
 }

@@ -17,21 +17,22 @@ Description：
 // ================================================================== 给角色新增权限
 
 type Auths struct {
-	RoleID     int   `json:"roleID" `
-	Permission []int `json:"permission" `
+	Data *request.Auths
 }
 
-func NewAuths(roleID int, permission []int) *Auths {
-	return &Auths{RoleID: roleID, Permission: permission}
+func NewAuths(data *request.Auths) *Auths {
+	return &Auths{
+		Data: data,
+	}
 }
-func SetAuth(roleID int, permission []int) (interface{}, code.Code) {
-	return NewAuths(roleID, permission).Do()
+func SetAuth(res *request.Auths) (interface{}, code.Code) {
+	return NewAuths(res).Do()
 }
-func (a *Auths) Do() (interface{}, code.Code) {
+func (auths *Auths) Do() (interface{}, code.Code) {
 	// 1.角色是否存在
 
 	// 2. 给角色赋予权限
-	err := respository.AddAuth(a.RoleID, a.Permission)
+	err := respository.AddAuth(auths.Data.RoleID, auths.Data.Permission)
 	if err != nil {
 		//TODO	log
 		return nil, code.ERROR_ADD_AUTH
@@ -42,22 +43,23 @@ func (a *Auths) Do() (interface{}, code.Code) {
 // ================================================================== 删除角色的某个权限
 
 type Auth struct {
-	RoleID       int `json:"roleID" `
-	PermissionID int `json:"permissionID"`
+	Data *request.Auth
 }
 
-func NewAuth(roleID int, permissionID int) *Auth {
-	return &Auth{RoleID: roleID, PermissionID: permissionID}
+func NewAuth(data *request.Auth) *Auth {
+	return &Auth{
+		Data: data,
+	}
 }
-func DelAuth(roleID int, permissionID int) (interface{}, code.Code) {
-	return NewAuth(roleID, permissionID).Do()
+func DelAuth(res *request.Auth) (interface{}, code.Code) {
+	return NewAuth(res).Do()
 }
 
-func (a *Auth) Do() (interface{}, code.Code) {
+func (auth *Auth) Do() (interface{}, code.Code) {
 	// 1.角色是否存在
 
 	// 2. 给角色赋予权限
-	err := respository.DeleteAuth(a.RoleID, a.PermissionID)
+	err := respository.DeleteAuth(auth.Data.RoleID, auth.Data.PermissionID)
 	if err != nil {
 		//TODO	log
 		return nil, code.ERROR_DEL_AUTH
@@ -68,17 +70,17 @@ func (a *Auth) Do() (interface{}, code.Code) {
 // ================================================================== 创建新的权限
 
 type Permission struct {
-	Name string `json:"name" `
+	Data *request.Permission
 }
 
-func NewPermission(name string) *Permission {
-	return &Permission{Name: name}
+func NewPermission(data *request.Permission) *Permission {
+	return &Permission{Data: data}
 }
-func CreatePermission(name string) (interface{}, code.Code) {
-	return NewPermission(name).Do(name)
+func CreatePermission(data *request.Permission) (interface{}, code.Code) {
+	return NewPermission(data).Do()
 }
-func (p Permission) Do(name string) (interface{}, code.Code) {
-	err := respository.Create(&models.Permission{Name: name})
+func (p Permission) Do() (interface{}, code.Code) {
+	err := respository.Create(&models.Permission{Name: p.Data.Name})
 	if err != nil {
 		return nil, code.ERROR_CREATE_PERMISSION
 	}
@@ -106,14 +108,14 @@ func (c Component) Do() (interface{}, code.Code) {
 		Path:      c.data.Path,
 		Redirect:  c.data.Redirect,
 		Parent:    c.data.Parent,
-		Limit:     c.data.Limit,
+		Priority:  c.data.Property,
 		Meta: models.Meta{
 			Title:       c.data.Meta.Title,
 			KeepAlive:   c.data.Meta.KeepAlive,
 			RequireAuth: c.data.Meta.RequireAuth,
 		},
 	}
-	if err := respository.Create(&comp); err != nil {
+	if _, err := respository.Creat("router", &comp, ""); err != nil {
 
 		return nil, code.ERROR_DB_OPE
 	}
@@ -136,7 +138,7 @@ func (c UpdateComponent) Do() (interface{}, code.Code) {
 		Redirect:  c.data.Redirect,
 		Parent:    c.data.Parent,
 		Disable:   c.data.Disable,
-		Limit:     c.data.Limit,
+		Priority:  c.data.Property,
 		Meta: models.Meta{
 			Title:       c.data.Meta.Title,
 			KeepAlive:   c.data.Meta.KeepAlive,
