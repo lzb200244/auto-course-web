@@ -2,6 +2,8 @@ package respository
 
 import (
 	"auto-course-web/global"
+	"auto-course-web/models/request"
+	"auto-course-web/respository/scopes"
 )
 
 /*
@@ -62,8 +64,10 @@ func Updates[T any](model any, data *T, query string, args ...any) error {
 }
 
 // List 数据列表
-func List[T any](model any, data T, order, query string, args ...any) {
-	sql := global.MysqlDB.Model(model).Order(order)
+func List[T any](model any, data T, pager *request.Pages, order, query string, args ...any) {
+	sql := global.MysqlDB.Scopes(
+		scopes.Paginate(pager.Page, pager.Size),
+	).Model(model).Order(order)
 	if query != "" {
 		sql.Where(query, args...)
 	}
@@ -71,6 +75,7 @@ func List[T any](model any, data T, order, query string, args ...any) {
 		panic(err)
 	}
 }
+
 func Creat[T any](model string, data *T, query string, args ...any) (res *T, err error) {
 	sql := global.MysqlDB.Table(model)
 	if query != "" {

@@ -6,6 +6,7 @@ import (
 	"auto-course-web/models/request"
 	"auto-course-web/models/response"
 	"auto-course-web/respository"
+	"fmt"
 )
 
 /*
@@ -71,9 +72,11 @@ func NewListCourse(data *request.Pages) *ListCourse {
 }
 func (list *ListCourse) Do(userID int) (interface{}, code.Code) {
 	var courses []*response.CourseResponse
+	fmt.Println(list.data)
 	respository.List(
 		models.Course{},
 		&courses,
+		list.data,
 		"start_time",
 		"user_id=?",
 		userID,

@@ -51,6 +51,6 @@ func ListCourseController(ctx *gin.Context) {
 		return
 	}
 	utils.Results(
-		ctx, validate.Page, validate.Size, 10, code.GetMsg(c), data,
+		ctx, 11, code.GetMsg(c), data,
 	)
 }

@@ -23,8 +23,7 @@ func SetupUser(group *gin.RouterGroup) {
 		user, _ := utils.GetUser(context)
 		global.MysqlDB.
 			Where("priority<=?", user.Authority).Find(&routes)
-		global.MysqlDB.
-			Find(&routes)
+
 		mpRoute := make(map[int]*models.Router, len(routes))
 		for _, route := range routes {
 			m := mpRoute[int(route.Parent)]

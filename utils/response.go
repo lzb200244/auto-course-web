@@ -21,8 +21,6 @@ type Response struct {
 type Page struct {
 	Results interface{} `json:"results,omitempty"`
 	Count   int         `json:"count,omitempty"`
-	Page    int         `json:"page,omitempty"`
-	Size    int         `json:"size,omitempty"`
 }
 
 // ResponsePage  返回存在页数的
@@ -37,11 +35,11 @@ func returnJson(ctx *gin.Context, status int, code code.Code, data interface{}, 
 		status, Response{Code: code, Message: msg, Data: data},
 	)
 }
-func returnPage(ctx *gin.Context, status int, code code.Code, page, size, count int, msg string, results interface{}) {
+func returnPage(ctx *gin.Context, status int, code code.Code, count int, msg string, results interface{}) {
 	ctx.JSON(
 		status, ResponsePage{
 			Code: code, Message: msg, Data: &Page{
-				Page: page, Size: size, Count: count, Results: results,
+				Count: count, Results: results,
 			},
 		},
 	)
@@ -49,9 +47,9 @@ func returnPage(ctx *gin.Context, status int, code code.Code, page, size, count 
 func Success(ctx *gin.Context, msg string, data interface{}) {
 	returnJson(ctx, http.StatusOK, code.OK, data, msg)
 }
-func Results(ctx *gin.Context, page, size, count int, msg string, results interface{}) {
+func Results(ctx *gin.Context, count int, msg string, results interface{}) {
 	returnPage(
-		ctx, http.StatusOK, code.OK, page, size, count, msg, results,
+		ctx, http.StatusOK, code.OK, count, msg, results,
 	)
 }
 func Fail(ctx *gin.Context, code code.Code, msg string, data interface{}) {
