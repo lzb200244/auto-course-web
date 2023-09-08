@@ -31,6 +31,11 @@ mysql:
   enable_file_log_writer: true
   log_filename: mysql.log
 #  log-zap: false
+redis:
+  host: 'localhost'
+  port: 6379
+  db: 0
+  password: ''
 jwt:
   expire: 168 # hour 7*24
   issuer: "斑斑砖"

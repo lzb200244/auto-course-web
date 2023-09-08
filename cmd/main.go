@@ -20,4 +20,7 @@ func Init() {
 	initialize.InitLogger()
 	//初始化mysql
 	initialize.InitMysql()
+	// 初始化redis
+	initialize.InitRedis()
+
 }

@@ -45,7 +45,7 @@ func InitMysql() {
 	sqlDB.SetMaxOpenConns(global.Config.Mysql.MaxOpenConn) // 打开
 	sqlDB.SetConnMaxLifetime(time.Second * 30)
 	global.MysqlDB = db
-	global.Logger.Debug("mysql初始化成功")
+	global.Logger.Debug("mysql初始化成功！")
 
 	//	进行表迁移
 	models.Migrate()
