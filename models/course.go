@@ -29,8 +29,6 @@ type Course struct {
 	UserID  uint   `json:"userID" gorm:"not null;comment:创建人ID"`
 	User    *User  `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;comment:创建人"`
 	Cover   string `json:"cover" gorm:"default:'';comment:封面"`
-	//	容量
-	Capacity uint32 `json:"capacity" gorm:"default:0;comment:容量"`
 	//	学分
 	Credit uint32 `json:"credit" gorm:"default:0;comment:学分"`
 	//课程分类

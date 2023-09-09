@@ -64,16 +64,21 @@ func Updates[T any](model any, data *T, query string, args ...any) error {
 }
 
 // List 数据列表
-func List[T any](model any, data T, pager *request.Pages, order, query string, args ...any) {
-	sql := global.MysqlDB.Scopes(
-		scopes.Paginate(pager.Page, pager.Size),
-	).Model(model).Order(order)
+func List[T any](model any, data T, pager *request.Pages, order, query string, args ...any) (int64, error) {
+	var count int64
+	sql := global.MysqlDB.Model(model).Order(order)
 	if query != "" {
 		sql.Where(query, args...)
 	}
-	if err := sql.Find(&data).Error; err != nil {
-		panic(err)
+	err := sql.Count(&count).Error
+	if err != nil {
+		return 0, err
 	}
+	err = sql.Scopes(scopes.Paginate(pager.Page, pager.Size)).Find(&data).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func Creat[T any](model string, data *T, query string, args ...any) (res *T, err error) {

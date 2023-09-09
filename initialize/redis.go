@@ -3,7 +3,6 @@ package initialize
 import (
 	"auto-course-web/global"
 	"github.com/go-redis/redis"
-	"time"
 )
 
 /*
@@ -17,9 +16,6 @@ func InitRedis() {
 		Addr:     global.Config.Redis.Addr,     // url
 		Password: global.Config.Redis.Password, // no password set
 		DB:       global.Config.Redis.DB,
-
-		PoolSize:    200,
-		IdleTimeout: time.Millisecond * 25,
 	})
 	if err := client.Ping().Err(); err != nil {
 		panic(err)

@@ -16,14 +16,12 @@ func SetupCourse(group *gin.RouterGroup) {
 	teacher := group.Group("teacher")
 	{
 		teacher.POST("/", controller.CreateCourseController)
-		//teacher.GET("/", func(context *gin.Context) {
-		//	utils.Success(context, code.GetMsg(code.OK), nil)
-		//})
+
 		teacher.GET("/", controller.ListCourseController)
+		//教师发布课程到缓存
+		teacher.POST("/publish", controller.PublishCourseController)
+		teacher.DELETE("/publish", controller.CancelPublishCourseController)
+		teacher.GET("/publish", controller.PublishListCourseController)
 	}
-	//student := group.Group("/student")
-	//{
-	//	student.POST("/", controller.CreateCourseController)
-	//	student.GET("/", controller.CreateCourseController)
-	//}
+
 }

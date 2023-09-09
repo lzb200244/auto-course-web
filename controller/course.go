@@ -3,6 +3,7 @@ package controller
 import (
 	"auto-course-web/global/code"
 	"auto-course-web/models/request"
+	"auto-course-web/models/response"
 	"auto-course-web/service"
 	"auto-course-web/utils"
 	"github.com/gin-gonic/gin"
@@ -50,7 +51,57 @@ func ListCourseController(ctx *gin.Context) {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
+	d := data.(*response.List)
 	utils.Results(
-		ctx, 11, code.GetMsg(c), data,
+		ctx, int(d.Count), code.GetMsg(c), d.Data,
 	)
+}
+
+// PublishCourseController 发布课程到缓存预热
+func PublishCourseController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.PreloadCourse](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	_, c := service.PreLoadCourse2Redis(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(code.OK), nil)
+}
+func PublishListCourseController(ctx *gin.Context) {
+	validate, err := utils.BindValidQuery[request.Pages](ctx)
+	if err != nil {
+
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	user, _ := utils.GetUser(ctx)
+	// 2. 调用服务
+	data, c := service.ListPublishCourses(int(user.ID), &validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	d := data.(*response.List)
+	utils.Results(
+		ctx, int(d.Count), code.GetMsg(c), d.Data,
+	)
+}
+
+func CancelPublishCourseController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.CancelPublishCourse](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	user, _ := utils.GetUser(ctx)
+	_, c := service.CancelCourse2Redis(int(user.ID), &validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(code.OK), nil)
 }
