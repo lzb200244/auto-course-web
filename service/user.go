@@ -9,8 +9,6 @@ import (
 	"auto-course-web/respository"
 	"auto-course-web/utils"
 	"errors"
-	"fmt"
-
 	"gorm.io/gorm"
 	"sync"
 )
@@ -77,17 +75,17 @@ func (r UserRegister) checkExists() (interface{}, code.Code) {
 // 创建用户
 func (r UserRegister) create() (interface{}, code.Code) {
 	user := models.User{UserName: r.Username, Password: r.Password, Email: r.Email}
-	user.SetPassword() // 加密
-
-	err := respository.Create(&user)
-
-	//给用户赋予权限
-	respository.AddUserAuthority(user, []int{auth.Student})
-	if err != nil {
-		fmt.Println(err, 2222)
-		//TODO 记录日志
+	if err := user.SetPassword(); err != nil {
 		return nil, code.ERROR_DB_OPE
 	}
+	if err := respository.Create(&user); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	//给用户赋予权限
+	if err := respository.AddUserAuthority(user, []int{int(auth.Student)}); err != nil {
+		return nil, code.ERROR_ADD_AUTH
+	}
+
 	return nil, code.OK
 
 }
@@ -208,7 +206,7 @@ func (u *UserInfo) GetUserObj(userID, roleID int) (interface{}, code.Code) {
 		userObj.Avatar,
 		"",
 		userObj.Sex,
-		[]string{auth.GetAuthorityName(roleID)},
+		[]string{auth.GetAuthorityName(auth.Auth(roleID))},
 		permission,
 	), code.OK
 

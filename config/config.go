@@ -15,4 +15,6 @@ type Configuration struct {
 	Jwt autoload.Jwt `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
 	//七牛云配置
 	Qiniu autoload.Qiniu `mapstructure:"qiniu" json:"qiniu" yaml:"qiniu"`
+	//邮件配置
+	Email autoload.Email `mapstructure:"email" json:"email" yaml:"email"`
 }

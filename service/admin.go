@@ -3,9 +3,13 @@ package service
 import (
 	"auto-course-web/global"
 	"auto-course-web/global/code"
+	"auto-course-web/global/keys"
 	"auto-course-web/models"
 	"auto-course-web/models/request"
+	"auto-course-web/models/response"
 	"auto-course-web/respository"
+	"auto-course-web/utils/tencent"
+	"strconv"
 )
 
 /*
@@ -108,7 +112,7 @@ func (c Component) Do() (interface{}, code.Code) {
 		Path:      c.data.Path,
 		Redirect:  c.data.Redirect,
 		Parent:    c.data.Parent,
-		Priority:  c.data.Property,
+		Role:      c.data.Role,
 		Meta: models.Meta{
 			Title:       c.data.Meta.Title,
 			KeepAlive:   c.data.Meta.KeepAlive,
@@ -138,7 +142,7 @@ func (c UpdateComponent) Do() (interface{}, code.Code) {
 		Redirect:  c.data.Redirect,
 		Parent:    c.data.Parent,
 		Disable:   c.data.Disable,
-		Priority:  c.data.Property,
+		Role:      c.data.Role,
 		Meta: models.Meta{
 			Title:       c.data.Meta.Title,
 			KeepAlive:   c.data.Meta.KeepAlive,
@@ -151,4 +155,86 @@ func (c UpdateComponent) Do() (interface{}, code.Code) {
 
 	return nil, code.OK
 
+}
+
+// ================================================================= 通知教师预发布课程
+
+type NoticeTeacher struct {
+}
+
+func NewNoticeTeacher() *NoticeTeacher {
+	return &NoticeTeacher{}
+}
+func Notice2Teacher() (interface{}, code.Code) {
+	return NewNoticeTeacher().Do()
+}
+
+func (n NoticeTeacher) Do() (interface{}, code.Code) {
+	//发布通知给教师，进行预选发布
+
+	//1. 获取所有教师email
+	var emails []string
+	global.MysqlDB.
+		Model(&models.User{}).
+		Select("email").
+		Where("id IN (SELECT user_id FROM user_roles WHERE role_id = ?)", 2).Find(&emails)
+
+	//2. 发送邮件（异步）TODO 消息队列进行处理
+	go tencent.SendEmail("预发布通知", "亲爱的老师：您好,您的课程正在进行预发布。", emails)
+
+	//3. 开启预发布通道 ,不存在时才进行创建,存在了只进行预先通知,不进行再次开启通道
+	global.Redis.SetNX(keys.IsPreLoadedKey, 1, keys.PreLoadedDurationKey)
+
+	return nil, code.OK
+}
+
+// ================================================================= 通知学生加入选课阶段
+
+type NoticeStudent struct {
+}
+
+func NewNoticeStudent() *NoticeTeacher {
+	return &NoticeTeacher{}
+}
+func Notice2Student() (interface{}, code.Code) {
+	return NewNoticeStudent().Do()
+}
+
+func (n NoticeStudent) Do() (interface{}, code.Code) {
+	return nil, code.OK
+}
+
+type PreloadCourse struct {
+	data *request.Pages
+}
+
+func NewPreloadCourse(data *request.Pages) *PreloadCourse {
+	return &PreloadCourse{
+		data: data,
+	}
+}
+func (list *PreloadCourse) Do() (interface{}, code.Code) {
+	result, _ := global.Redis.SMembers(keys.PreLoadCourseListKey).Result()
+	var courses []*response.PublishCourseResponse
+	resp := &response.List{}
+	count, err := respository.List(
+		models.Course{},
+		&courses,
+		list.data,
+		"start_time",
+		"id in ?", result,
+	)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	m, err := global.Redis.HGetAll(keys.PreLoadCourseKey).Result()
+	for _, course := range courses {
+		course.Capacity = m[strconv.Itoa(int(course.ID))]
+	}
+	resp.Data = courses
+	resp.Count = count
+	return resp, code.OK
+}
+func PreloadCourses(data *request.Pages) (interface{}, code.Code) {
+	return NewPreloadCourse(data).Do()
 }

@@ -16,13 +16,17 @@ Description：
 */
 
 func SetupUser(group *gin.RouterGroup) {
+	// 获取用户信息
+	//group.GET("/:id", controller.GetUserController)
 	group.GET("/", controller.GetUserController)
+	// 用户更新信息
 	group.PUT("/", controller.UpdateInfoController)
+	// 获取用户权限
 	group.GET("/permission", func(context *gin.Context) {
 		var routes []*models.Router
 		user, _ := utils.GetUser(context)
 		global.MysqlDB.
-			Where("priority<=?", user.Authority).Find(&routes)
+			Where("role<=?", user.Role).Find(&routes)
 
 		mpRoute := make(map[int]*models.Router, len(routes))
 		for _, route := range routes {

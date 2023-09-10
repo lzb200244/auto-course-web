@@ -100,3 +100,41 @@ func ModifyPageController(ctx *gin.Context) {
 	}
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
+
+// ============================================================== 通知教师发布预选
+
+func Notice2TeacherController(ctx *gin.Context) {
+	_, c := service.Notice2Teacher()
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), nil)
+}
+
+func Notice2StudentController(ctx *gin.Context) {
+	_, c := service.Notice2Student()
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), nil)
+}
+
+// ============================================================== 获取所有的预选课程
+
+func GetAllCourseController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.Pages](ctx)
+	//参数校验失败
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+
+	_, c := service.PreloadCourses(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), nil)
+}

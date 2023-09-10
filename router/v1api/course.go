@@ -2,6 +2,8 @@ package v1api
 
 import (
 	"auto-course-web/controller"
+	"auto-course-web/global/auth"
+	"auto-course-web/router/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -12,16 +14,14 @@ Created by 斑斑砖 on 2023/9/6.
 */
 
 func SetupCourse(group *gin.RouterGroup) {
+	t := group.Use(middleware.HasRole(auth.Teacher))
 	// 创建课程
-	teacher := group.Group("teacher")
-	{
-		teacher.POST("/", controller.CreateCourseController)
-
-		teacher.GET("/", controller.ListCourseController)
-		//教师发布课程到缓存
-		teacher.POST("/publish", controller.PublishCourseController)
-		teacher.DELETE("/publish", controller.CancelPublishCourseController)
-		teacher.GET("/publish", controller.PublishListCourseController)
-	}
+	t.POST("/", controller.CreateCourseController)
+	// 编辑课程
+	t.GET("/", controller.ListCourseController)
+	//教师发布课程到缓存
+	t.POST("/publish", controller.PublishCourseController)
+	t.DELETE("/publish", controller.CancelPublishCourseController)
+	t.GET("/publish", controller.PublishListCourseController)
 
 }

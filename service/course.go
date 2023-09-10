@@ -125,15 +125,13 @@ func (course *PreLoadCourse) Do() (interface{}, code.Code) {
 
 // 校验课程是否存在/是否处于预选课状态
 func (course *PreLoadCourse) check() (interface{}, code.Code) {
-	//是否处于预选课状态
-	//result, err := global.Redis.Exists(keys.PreLoadCourseKey).Result()
-	//if err != nil {
-	//	return nil, code.ERROR_DB_OPE
-	//}
-	//if result == 0 {
-	//	return nil, code.ERROR_COURSE_NOT_OPNE
-	//}
-	//是否已经发布过
+	//1. 是否处于预选课状态
+	if result, _ := global.Redis.Exists(keys.IsPreLoadedKey).Result(); result == 0 {
+		//不处于预选课状态
+		return nil, code.ERROR_PRELOAD_COURSE_NOT_OPEN
+	}
+
+	//2. 是否已经发布过
 	result, err := global.Redis.SIsMember(keys.PreLoadCourseListKey, course.data.CourseID).Result()
 	if err != nil {
 		return nil, 0
@@ -187,7 +185,11 @@ func (course CancelPublishCourse) Do(userID int) (interface{}, code.Code) {
 	return nil, code.OK
 }
 func (course CancelPublishCourse) check(userID int) (interface{}, code.Code) {
-
+	//1. 是否处于预选课状态
+	if result, _ := global.Redis.Exists(keys.IsPreLoadedKey).Result(); result == 0 {
+		//不处于预选课状态
+		return nil, code.ERROR_PRELOAD_COURSE_CLOSE
+	}
 	exist, err := respository.Exist(models.Course{}, "id=? and user_id=?", course.data.CourseID, userID)
 	if err != nil {
 		return nil, code.ERROR_DB_OPE

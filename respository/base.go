@@ -74,7 +74,12 @@ func List[T any](model any, data T, pager *request.Pages, order, query string, a
 	if err != nil {
 		return 0, err
 	}
-	err = sql.Scopes(scopes.Paginate(pager.Page, pager.Size)).Find(&data).Error
+	if pager != nil {
+		sql = sql.Scopes(
+			scopes.Paginate(pager.Page, pager.Size),
+		)
+	}
+	err = sql.Find(&data).Error
 	if err != nil {
 		return 0, err
 	}

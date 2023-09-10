@@ -34,29 +34,28 @@ func InitApiRouter() *gin.Engine {
 		v1.GET("ping", func(ctx *gin.Context) {
 			utils.Success(ctx, "pong", nil)
 		})
-		v1.POST("register", controller.RegisterController)
-		v1.POST("login", controller.LoginController)
-
+		v1.POST("users/register", controller.RegisterController)
+		v1.POST("users/login", controller.LoginController)
 		// ==================================================================== 需要进行认证的
 		authored := v1.Group("")
 		authored.Use(middleware.JWT())
 		{
 			// =================================================================== 获取凭证
-			credit := authored.Group("credit")
+			credit := authored.Group("credits")
 			{
 				credit.GET("kodo", func(context *gin.Context) {
 					utils.Success(context, code.GetMsg(code.OK), qiniu.GetCredits())
 				})
 			}
 			// =================================================================== 用户相关
-			user := authored.Group("user")
+			user := authored.Group("users")
 			v1api.SetupUser(user)
 			// =================================================================== 管理员赋予权限的相关curd
 			admin := authored.Group("admin")
 			v1api.SetupAdmin(admin)
 
 			// =================================================================== 课程相关
-			course := authored.Group("course")
+			course := authored.Group("courses")
 			v1api.SetupCourse(course)
 
 		}

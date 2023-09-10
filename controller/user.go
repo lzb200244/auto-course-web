@@ -50,8 +50,9 @@ func LoginController(ctx *gin.Context) {
 func GetUserController(ctx *gin.Context) {
 	//1. 从ctx提取用户id
 	user, _ := utils.GetUser(ctx)
+
 	//2. 无需进行校验， 调用服务
-	data, c := service.GetUserInfo(int(user.ID), user.Authority)
+	data, c := service.GetUserInfo(int(user.ID), user.Role)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return

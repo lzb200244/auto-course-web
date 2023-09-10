@@ -60,9 +60,11 @@ const (
 	ERROR_COURSE_CATEGORY_EXIST     Code = 8007
 
 	// code=10000 ... 选课模块
-	ERROR_COURSE_NOT_OPNE Code = 10000
-	ERROR_COURSE_DELETE        = 10001
-	ERROR_COURSE_ALREADY       = 10002
+
+	ERROR_PRELOAD_COURSE_NOT_OPEN Code = 10000
+	ERROR_PRELOAD_COURSE_CLOSE    Code = 10001
+	ERROR_COURSE_DELETE                = 10002
+	ERROR_COURSE_ALREADY               = 10003
 )
 
 var codeMsg = map[Code]string{
@@ -113,9 +115,10 @@ var codeMsg = map[Code]string{
 	ERROR_COURSE_CATEGORY_NOT_EXIST: "该课程分类不存在",
 	ERROR_COURSE_CATEGORY_EXIST:     "该课程分类已存在",
 	//	###################################################################### 选课
-	ERROR_COURSE_NOT_OPNE: "选课系统未进行开启",
-	ERROR_COURSE_DELETE:   "课程删除失败",
-	ERROR_COURSE_ALREADY:  "课程已发布",
+	ERROR_PRELOAD_COURSE_NOT_OPEN: "预发布未进行开启",
+	ERROR_PRELOAD_COURSE_CLOSE:    "预发布已关闭",
+	ERROR_COURSE_DELETE:           "课程删除失败",
+	ERROR_COURSE_ALREADY:          "课程已发布",
 }
 
 func GetMsg(code Code) string {
