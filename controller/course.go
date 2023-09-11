@@ -57,6 +57,23 @@ func ListCourseController(ctx *gin.Context) {
 	)
 }
 
+func ListCourseCategoryController(ctx *gin.Context) {
+	validate, err := utils.BindValidQuery[request.Pages](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	// 2. 调用服务
+	data, c := service.GetCourseCategory(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Results(
+		ctx, int(data.(*response.List).Count), code.GetMsg(c), data.(*response.List).Data,
+	)
+}
+
 // PublishCourseController 发布课程到缓存预热
 func PublishCourseController(ctx *gin.Context) {
 	validate, err := utils.BindValidJson[request.PreloadCourse](ctx)

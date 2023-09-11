@@ -24,6 +24,7 @@ func AddUserAuthority(user models.User, roleID auth.Auth) error {
 // GetUserInfo 获取用户信息、角色和权限
 func GetUserInfo[T any](data T, query string, args ...any) (T, error) {
 	err := global.MysqlDB.
+		Preload("Role").
 		Where(query, args...).
 		First(&data).Error
 	return data, err

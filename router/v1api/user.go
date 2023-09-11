@@ -25,10 +25,20 @@ func SetupUser(group *gin.RouterGroup) {
 	group.GET("/permission", func(context *gin.Context) {
 
 		var routes []*models.Router
+		var r []*models.Router
 		user, _ := utils.GetUser(context)
+		userRoleID := uint(user.Role)
 		global.MysqlDB.
-			Where("role<=?", user.Role).Find(&routes)
-
+			Preload("Role").
+			Find(&routes)
+		for _, route := range routes {
+			for _, role := range route.Role {
+				if role.ID == userRoleID {
+					r = append(r, route)
+				}
+			}
+		}
+		routes = r
 		mpRoute := make(map[int]*models.Router, len(routes))
 		for _, route := range routes {
 			m := mpRoute[int(route.Parent)]

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"auto-course-web/global"
 	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -13,6 +12,11 @@ import (
 Created by 斑斑砖 on 2023/9/6.
 Description：
 */
+type CourseTest struct {
+	CategoryID uint
+	Category   *CourseCategory
+}
+
 func TestCourse(t *testing.T) {
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       "root:root@tcp(127.0.0.1:3306)/course?charset=utf8mb4&parseTime=True&loc=Local",
@@ -24,37 +28,16 @@ func TestCourse(t *testing.T) {
 
 	}), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			SingularTable: global.Config.Mysql.Singular, // 表明不加s
+			SingularTable: true, // 表明不加s
 		},
 	})
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(
-		&CourseCategory{},
-		&Course{},
-	)
-
-	db.Create(&CourseCategory{
-		Name: "前端",
-		Desc: "前端课程",
-	})
-	//
-	db.Create(&Course{
-		Title:      "前端课程",
-		Desc:       "前端课程",
-		UserID:     1,
-		CategoryID: 1,
-		Capacity:   50,
-		Credit:     2,
-		Code:       "FT123",
-		Schedule:   "8:00-9:00",
-		StartTime:  "2023-01-01",
-		EndTime:    "2023-04-02",
-	})
-	courses := &Course{}
-	db.Preload("Category").Preload("User").First(courses, 1)
-	fmt.Println(courses.Category)
-	fmt.Println(courses.User)
-
+	fmt.Println(db)
+	//var course []CourseTest
+	//db.Model(Course{}).Preload("Category").Find(&course)
+	//fmt.Println(course[0].Category)
+	//fmt.Println(course[0].Category.Name)
+	//fmt.Println(22)
 }

@@ -9,6 +9,7 @@ import (
 	"auto-course-web/respository"
 	"auto-course-web/utils"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"sync"
 )
@@ -113,6 +114,7 @@ func (r UserLogin) Do() (interface{}, code.Code) {
 func (r UserLogin) checkAndSign() (interface{}, code.Code) {
 
 	userObj, err := respository.GetUserInfo(&models.User{}, "user_name", r.Username)
+	fmt.Println(userObj.Role)
 	if err != nil {
 		//不存在该用户
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -126,6 +128,7 @@ func (r UserLogin) checkAndSign() (interface{}, code.Code) {
 		return nil, code.ERROR_PASSWORD_WRONG
 	}
 	//校验通过生成Token
+
 	token, err := utils.GenerateToken(userObj.ID, userObj.UserName, userObj.Email, int(userObj.Role.ID))
 	if err != nil {
 		//签发token失败

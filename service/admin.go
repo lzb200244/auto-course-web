@@ -106,13 +106,19 @@ func CreatePage(data *request.Component) (interface{}, code.Code) {
 	return NewComponent(data).Do()
 }
 func (c Component) Do() (interface{}, code.Code) {
+	var roles []*models.Role
+	_, err := respository.List(models.Role{}, &roles, nil, "", "id in ?", c.data.Role)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+
 	comp := models.Router{
 		Name:      c.data.Name,
 		Component: c.data.Component,
 		Path:      c.data.Path,
 		Redirect:  c.data.Redirect,
 		Parent:    c.data.Parent,
-		Role:      c.data.Role,
+		Role:      roles,
 		Meta: models.Meta{
 			Title:       c.data.Meta.Title,
 			KeepAlive:   c.data.Meta.KeepAlive,
@@ -135,6 +141,8 @@ func UpdatePage(data *request.Component) (interface{}, code.Code) {
 	return NewComponent(data).Do()
 }
 func (c UpdateComponent) Do() (interface{}, code.Code) {
+	var roles []*models.Role
+	global.MysqlDB.Model(models.Router{}).Find(roles, "id in ", c.data.Role)
 	comp := models.Router{
 		Name:      c.data.Name,
 		Component: c.data.Component,
@@ -142,7 +150,7 @@ func (c UpdateComponent) Do() (interface{}, code.Code) {
 		Redirect:  c.data.Redirect,
 		Parent:    c.data.Parent,
 		Disable:   c.data.Disable,
-		Role:      c.data.Role,
+		Role:      roles,
 		Meta: models.Meta{
 			Title:       c.data.Meta.Title,
 			KeepAlive:   c.data.Meta.KeepAlive,
@@ -237,4 +245,43 @@ func (list *PreloadCourse) Do() (interface{}, code.Code) {
 }
 func PreloadCourses(data *request.Pages) (interface{}, code.Code) {
 	return NewPreloadCourse(data).Do()
+}
+
+// ================================================================== 创建课程分类
+
+type Category struct {
+	data *request.Category
+}
+
+func NewCategory(data *request.Category) *Category {
+	return &Category{data: data}
+}
+
+func CreateCategory(data *request.Category) (interface{}, code.Code) {
+	return NewCategory(data).Do()
+
+}
+func (category Category) Do() (interface{}, code.Code) {
+	if _, c := category.check(); c != code.OK {
+		return nil, c
+	}
+	if err := respository.Create(
+		&models.CourseCategory{
+			Name: category.data.Name, Desc: category.data.Desc},
+	); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	return nil, code.OK
+}
+
+// 校验分类名称是否存在
+func (category Category) check() (interface{}, code.Code) {
+	exist, err := respository.Exist(models.CourseCategory{}, "name", category.data.Name)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	if exist {
+		return nil, code.ERROR_COURSE_CATEGORY_EXIST
+	}
+	return nil, code.OK
 }

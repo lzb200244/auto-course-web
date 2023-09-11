@@ -69,6 +69,7 @@ func NewListCourse(data *request.Pages) *ListCourse {
 	}
 }
 func (list *ListCourse) Do(userID int) (interface{}, code.Code) {
+
 	var courses []*response.CourseResponse
 	resp := &response.List{}
 	count, err := respository.List(
@@ -97,6 +98,37 @@ func (list *ListCourse) Do(userID int) (interface{}, code.Code) {
 }
 func ListCourses(userID int, data *request.Pages) (interface{}, code.Code) {
 	return NewListCourse(data).Do(userID)
+}
+
+// =================================================================== 获取课程分类
+
+type CourseCategory struct {
+	data *request.Pages
+}
+
+func NewGetCourseCategory(data *request.Pages) *CourseCategory {
+	return &CourseCategory{data: data}
+}
+func GetCourseCategory(data *request.Pages) (interface{}, code.Code) {
+	return NewGetCourseCategory(data).Do()
+
+}
+func (category *CourseCategory) Do() (interface{}, code.Code) {
+	var categories []*response.CategoryResponse
+	resp := &response.List{}
+	count, err := respository.List(
+		models.CourseCategory{},
+		&categories,
+		category.data,
+		"id",
+		"",
+	)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	resp.Data = categories
+	resp.Count = count
+	return resp, code.OK
 }
 
 // =================================================================== 教师接收到admin的通知，进行课程预热到缓存

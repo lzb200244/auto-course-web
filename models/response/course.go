@@ -38,3 +38,9 @@ type PublishCourseResponse struct {
 	Schedule string `json:"schedule"`
 	//	开课时间
 }
+
+type CategoryResponse struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name" `
+	Desc string `json:"desc" `
+}

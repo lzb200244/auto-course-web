@@ -19,7 +19,8 @@ func SetupAdmin(group *gin.RouterGroup) {
 	group.POST("routes", controller.CreatePageController)
 	//修改页面
 	group.PUT("routes", controller.ModifyPageController)
-
+	//创建课程分类
+	group.POST("categories", controller.CreateCategoryController)
 	//赋予权限
 	group.PUT("permissions", controller.AddAuthController)
 	//删除权限

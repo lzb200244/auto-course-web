@@ -31,9 +31,14 @@ type Component struct {
 	Component string `json:"component"  label:"组件名称" `
 	Meta      Meta   `json:"meta" validate:"required" label:"元信息"`
 	Disable   bool   `json:"disable"`
-	Role      uint8  `json:"role"   validate:"required" label:"权限限制"`
+	Role      []int  `json:"role"   validate:"required" label:"权限限制"`
 	Parent    uint   `json:"parent"  label:"父级ID"`
 }
 
 type Notice struct {
+}
+
+type Category struct {
+	Name string `json:"name" validate:"required" label:"分类名称"`
+	Desc string `json:"desc" validate:"required" label:"分类描述"`
 }

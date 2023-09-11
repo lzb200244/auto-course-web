@@ -33,15 +33,16 @@ type Meta struct {
 }
 type Router struct {
 	gorm.Model
-	Name      string    `json:"name" gorm:"not null;comment:标题"`
-	Path      string    `json:"path"  gorm:"not null;comment:路由" `
-	Redirect  string    `json:"redirect"  gorm:"default:'';comment:重定向(针对父路由)"`
-	Component string    `json:"component" gorm:"default:'';comment:路由标识/组件的位置"`
-	Meta      Meta      `json:"meta" gorm:"type:json;comment:附加属性"`
-	Role      uint8     `json:"role" gorm:"default:1;comment:权限控制"`
-	Parent    uint      `json:"parent" gorm:"default:1;comment:父级路由ID"`
-	Disable   bool      `json:"disable" gorm:"default:false;comment:是否禁用"`
-	Children  []*Router `json:"children" gorm:"foreignkey:parent;association_foreignkey:id;" `
+	Name      string  `json:"name" gorm:"not null;comment:标题"`
+	Path      string  `json:"path"  gorm:"not null;comment:路由" `
+	Redirect  string  `json:"redirect"  gorm:"default:'';comment:重定向(针对父路由)"`
+	Component string  `json:"component" gorm:"default:'';comment:路由标识/组件的位置"`
+	Meta      Meta    `json:"meta" gorm:"type:json;comment:附加属性"`
+	Parent    uint    `json:"parent" gorm:"default:1;comment:父级路由ID"`
+	Disable   bool    `json:"disable" gorm:"default:false;comment:是否禁用"`
+	Role      []*Role `json:"role" gorm:"many2many:role_routers;comment:访问路由的权限"`
+
+	Children []*Router `json:"children" gorm:"foreignkey:parent;association_foreignkey:id;" `
 }
 
 func (i *Meta) Scan(value interface{}) error {

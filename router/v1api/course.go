@@ -19,6 +19,9 @@ func SetupCourse(group *gin.RouterGroup) {
 	t.POST("/", controller.CreateCourseController)
 	// 编辑课程
 	t.GET("/", controller.ListCourseController)
+	//获取课程分类
+	t.GET("/category", controller.ListCourseCategoryController)
+
 	//教师发布课程到缓存
 	t.POST("/publish", controller.PublishCourseController)
 	t.DELETE("/publish", controller.CancelPublishCourseController)

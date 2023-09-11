@@ -138,3 +138,19 @@ func GetAllCourseController(ctx *gin.Context) {
 	}
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
+
+func CreateCategoryController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.Category](ctx)
+	//参数校验失败
+	if err != nil {
+
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	_, c := service.CreateCategory(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), nil)
+}
