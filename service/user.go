@@ -82,7 +82,7 @@ func (r UserRegister) create() (interface{}, code.Code) {
 		return nil, code.ERROR_DB_OPE
 	}
 	//给用户赋予权限
-	if err := respository.AddUserAuthority(user, []int{int(auth.Student)}); err != nil {
+	if err := respository.AddUserAuthority(user, auth.Student); err != nil {
 		return nil, code.ERROR_ADD_AUTH
 	}
 
@@ -126,12 +126,12 @@ func (r UserLogin) checkAndSign() (interface{}, code.Code) {
 		return nil, code.ERROR_PASSWORD_WRONG
 	}
 	//校验通过生成Token
-	token, err := utils.GenerateToken(userObj.ID, userObj.UserName, userObj.Email, int(userObj.Roles[0].ID))
+	token, err := utils.GenerateToken(userObj.ID, userObj.UserName, userObj.Email, int(userObj.Role.ID))
 	if err != nil {
 		//签发token失败
 		return nil, code.ERROR_TOKEN_CREATE
 	}
-	roleObj := userObj.Roles[0]
+	roleObj := userObj.Role
 	permission := respository.GetPermission(int(roleObj.ID))
 
 	return response.NewUserResponse(

@@ -2,6 +2,7 @@ package respository
 
 import (
 	"auto-course-web/global"
+	"auto-course-web/global/auth"
 	"auto-course-web/models"
 )
 
@@ -12,10 +13,10 @@ Description：
 */
 
 // AddUserAuthority 给用户赋予角色
-func AddUserAuthority(user models.User, roleID []int) error {
-	var roles models.Role
-	global.MysqlDB.Find(&roles, "id in ?", roleID)
-	user.Roles = append(user.Roles, roles)
+func AddUserAuthority(user models.User, roleID auth.Auth) error {
+	var roles *models.Role
+	global.MysqlDB.Find(&roles, "id = ?", roleID)
+	user.Role = roles
 	err := global.MysqlDB.Save(&user).Error
 	return err
 }
@@ -23,7 +24,6 @@ func AddUserAuthority(user models.User, roleID []int) error {
 // GetUserInfo 获取用户信息、角色和权限
 func GetUserInfo[T any](data T, query string, args ...any) (T, error) {
 	err := global.MysqlDB.
-		Preload("Roles").
 		Where(query, args...).
 		First(&data).Error
 	return data, err

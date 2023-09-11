@@ -24,7 +24,8 @@ type User struct {
 	Avatar   string `json:"avatar" gorm:"default:'';comment:头像"`
 	Sex      int    `json:"sex" gorm:"default:0;comment:性别"`
 	Desc     string `json:"desc" gorm:"default:'';comment:描述"`
-	Roles    []Role `gorm:"many2many:user_roles;"`
+	Role     *Role  `gorm:"foreignKey:RoleID;"`
+	RoleID   uint   `json:"role_id" gorm:"not null;comment:用户角色ID"`
 }
 
 func (user *User) SetPassword() error {
