@@ -6,6 +6,7 @@ import (
 	"auto-course-web/global/code"
 	"auto-course-web/models"
 	"auto-course-web/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -25,6 +26,7 @@ func SetupUser(group *gin.RouterGroup) {
 	group.GET("/permission", func(context *gin.Context) {
 		var routes []*models.Router
 		user, _ := utils.GetUser(context)
+		fmt.Println(user.Role)
 		global.MysqlDB.
 			Where("role<=?", user.Role).Find(&routes)
 
