@@ -24,15 +24,10 @@ type Auths struct {
 	Data *request.Auths
 }
 
-func NewAuths(data *request.Auths) *Auths {
-	return &Auths{
-		Data: data,
-	}
+func AddAuth(data *request.Auths) (interface{}, code.Code) {
+	return Auths{Data: data}.Do()
 }
-func SetAuth(res *request.Auths) (interface{}, code.Code) {
-	return NewAuths(res).Do()
-}
-func (auths *Auths) Do() (interface{}, code.Code) {
+func (auths Auths) Do() (interface{}, code.Code) {
 	// 1.角色是否存在
 
 	// 2. 给角色赋予权限
@@ -50,16 +45,13 @@ type Auth struct {
 	Data *request.Auth
 }
 
-func NewAuth(data *request.Auth) *Auth {
-	return &Auth{
+func DelAuth(data *request.Auth) (interface{}, code.Code) {
+	return Auth{
 		Data: data,
-	}
-}
-func DelAuth(res *request.Auth) (interface{}, code.Code) {
-	return NewAuth(res).Do()
+	}.Do()
 }
 
-func (auth *Auth) Do() (interface{}, code.Code) {
+func (auth Auth) Do() (interface{}, code.Code) {
 	// 1.角色是否存在
 
 	// 2. 给角色赋予权限
@@ -77,11 +69,8 @@ type Permission struct {
 	Data *request.Permission
 }
 
-func NewPermission(data *request.Permission) *Permission {
-	return &Permission{Data: data}
-}
 func CreatePermission(data *request.Permission) (interface{}, code.Code) {
-	return NewPermission(data).Do()
+	return Permission{Data: data}.Do()
 }
 func (p Permission) Do() (interface{}, code.Code) {
 	err := respository.Create(&models.Permission{Name: p.Data.Name})
@@ -97,18 +86,14 @@ type Component struct {
 	data *request.Component
 }
 
-func NewComponent(data *request.Component) *Component {
-	return &Component{
-		data: data,
-	}
-}
 func CreatePage(data *request.Component) (interface{}, code.Code) {
-	return NewComponent(data).Do()
+	return Component{data: data}.Do()
 }
 func (c Component) Do() (interface{}, code.Code) {
 	var roles []*models.Role
 	_, err := respository.List(models.Role{}, &roles, nil, "", "id in ?", c.data.Role)
 	if err != nil {
+		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
 
@@ -126,7 +111,7 @@ func (c Component) Do() (interface{}, code.Code) {
 		},
 	}
 	if _, err := respository.Creat("router", &comp, ""); err != nil {
-
+		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
 	return nil, code.OK
@@ -138,7 +123,7 @@ type UpdateComponent struct {
 }
 
 func UpdatePage(data *request.Component) (interface{}, code.Code) {
-	return NewComponent(data).Do()
+	return UpdateComponent{data: data}.Do()
 }
 func (c UpdateComponent) Do() (interface{}, code.Code) {
 	var roles []*models.Role
@@ -158,6 +143,7 @@ func (c UpdateComponent) Do() (interface{}, code.Code) {
 		},
 	}
 	if err := global.MysqlDB.Updates(&comp).Error; err != nil {
+		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
 
@@ -170,11 +156,8 @@ func (c UpdateComponent) Do() (interface{}, code.Code) {
 type NoticeTeacher struct {
 }
 
-func NewNoticeTeacher() *NoticeTeacher {
-	return &NoticeTeacher{}
-}
 func Notice2Teacher() (interface{}, code.Code) {
-	return NewNoticeTeacher().Do()
+	return NoticeTeacher{}.Do()
 }
 
 func (n NoticeTeacher) Do() (interface{}, code.Code) {
@@ -201,11 +184,8 @@ func (n NoticeTeacher) Do() (interface{}, code.Code) {
 type NoticeStudent struct {
 }
 
-func NewNoticeStudent() *NoticeTeacher {
-	return &NoticeTeacher{}
-}
 func Notice2Student() (interface{}, code.Code) {
-	return NewNoticeStudent().Do()
+	return NoticeTeacher{}.Do()
 }
 
 func (n NoticeStudent) Do() (interface{}, code.Code) {
@@ -216,12 +196,10 @@ type PreloadCourse struct {
 	data *request.Pages
 }
 
-func NewPreloadCourse(data *request.Pages) *PreloadCourse {
-	return &PreloadCourse{
-		data: data,
-	}
+func ListPreloadCourse(data *request.Pages) (interface{}, code.Code) {
+	return PreloadCourse{data: data}.Do()
 }
-func (list *PreloadCourse) Do() (interface{}, code.Code) {
+func (list PreloadCourse) Do() (interface{}, code.Code) {
 	result, _ := global.Redis.SMembers(keys.PreLoadCourseListKey).Result()
 	var courses []*response.PublishCourseResponse
 	resp := &response.List{}
@@ -233,6 +211,7 @@ func (list *PreloadCourse) Do() (interface{}, code.Code) {
 		"id in ?", result,
 	)
 	if err != nil {
+		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
 	m, err := global.Redis.HGetAll(keys.PreLoadCourseKey).Result()
@@ -243,9 +222,6 @@ func (list *PreloadCourse) Do() (interface{}, code.Code) {
 	resp.Count = count
 	return resp, code.OK
 }
-func PreloadCourses(data *request.Pages) (interface{}, code.Code) {
-	return NewPreloadCourse(data).Do()
-}
 
 // ================================================================== 创建课程分类
 
@@ -253,23 +229,15 @@ type Category struct {
 	data *request.Category
 }
 
-func NewCategory(data *request.Category) *Category {
-	return &Category{data: data}
-}
-
 func CreateCategory(data *request.Category) (interface{}, code.Code) {
-	return NewCategory(data).Do()
-
+	return Category{data: data}.Do()
 }
 func (category Category) Do() (interface{}, code.Code) {
 	if _, c := category.check(); c != code.OK {
 		return nil, c
 	}
-	if err := respository.Create(
-		&models.CourseCategory{
-			Name: category.data.Name, Desc: category.data.Desc},
-	); err != nil {
-		return nil, code.ERROR_DB_OPE
+	if _, c := category.create(); c != code.OK {
+		return nil, c
 	}
 	return nil, code.OK
 }
@@ -278,10 +246,23 @@ func (category Category) Do() (interface{}, code.Code) {
 func (category Category) check() (interface{}, code.Code) {
 	exist, err := respository.Exist(models.CourseCategory{}, "name", category.data.Name)
 	if err != nil {
+		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
 	if exist {
 		return nil, code.ERROR_COURSE_CATEGORY_EXIST
+	}
+	return nil, code.OK
+}
+
+// 创建分类
+func (category Category) create() (interface{}, code.Code) {
+	if err := respository.Create(
+		&models.CourseCategory{
+			Name: category.data.Name, Desc: category.data.Desc},
+	); err != nil {
+		//TODO log
+		return nil, code.ERROR_DB_OPE
 	}
 	return nil, code.OK
 }

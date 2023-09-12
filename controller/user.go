@@ -14,6 +14,9 @@ Description：
 	注册
 */
 
+// =================================================================== 登录注册
+
+// RegisterController 注册
 func RegisterController(ctx *gin.Context) {
 	//参数校验
 	validate, err := utils.BindValidJson[request.Register](ctx)
@@ -30,6 +33,8 @@ func RegisterController(ctx *gin.Context) {
 	}
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
+
+// LoginController 登录
 func LoginController(ctx *gin.Context) {
 	//1. 参数校验
 	validate, err := utils.BindValidJson[request.Login](ctx)
@@ -47,6 +52,9 @@ func LoginController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), data)
 }
 
+// =================================================================== 用户相关
+
+// GetUserController 获取用户
 func GetUserController(ctx *gin.Context) {
 	//1. 从ctx提取用户id
 	user, _ := utils.GetUser(ctx)

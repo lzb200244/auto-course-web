@@ -9,7 +9,8 @@ import (
 
 /*
 Created by 斑斑砖 on 2023/9/5.
-Description：
+	Description：
+		管理员权限的操作，路由页面的curd，课程分类，通知等
 
 */
 
@@ -18,7 +19,7 @@ func SetupAdmin(group *gin.RouterGroup) {
 	//创建新的路由页面
 	group.POST("routes", controller.CreatePageController)
 	//修改页面
-	group.PUT("routes", controller.ModifyPageController)
+	group.PUT("routes", controller.UpdatePageController)
 	//创建课程分类
 	group.POST("categories", controller.CreateCategoryController)
 	//赋予权限
@@ -33,6 +34,6 @@ func SetupAdmin(group *gin.RouterGroup) {
 	group.POST("/students/notify", controller.Notice2StudentController)
 
 	//	获取所有的预选课程
-	group.GET("courses", controller.GetAllCourseController)
+	group.GET("courses", controller.ListPublishCourseController)
 
 }

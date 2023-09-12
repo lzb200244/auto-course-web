@@ -13,6 +13,7 @@ Created by 斑斑砖 on 2023/9/2.
 Description：
 	权限的curd
 */
+// ============================================================= 权限相关
 
 // AddAuthController 角色添加权限
 func AddAuthController(ctx *gin.Context) {
@@ -23,7 +24,7 @@ func AddAuthController(ctx *gin.Context) {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
-	_, c := service.SetAuth(&validate)
+	_, c := service.AddAuth(&validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
@@ -48,6 +49,7 @@ func DelAuthController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
 
+// CreateAuthController 创建新的权限
 func CreateAuthController(ctx *gin.Context) {
 	//参数校验
 	validate, err := utils.BindValidJson[request.Permission](ctx)
@@ -64,8 +66,9 @@ func CreateAuthController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
 
-// ============================================================== 创建新的页面
+// ============================================================== 路由相关
 
+// CreatePageController 创建新的路由页面
 func CreatePageController(ctx *gin.Context) {
 	validate, err := utils.BindValidJson[request.Component](ctx)
 	//参数校验失败
@@ -83,9 +86,8 @@ func CreatePageController(ctx *gin.Context) {
 
 }
 
-// ============================================================== 修改页面
-
-func ModifyPageController(ctx *gin.Context) {
+// UpdatePageController 修改路由页面信息
+func UpdatePageController(ctx *gin.Context) {
 	validate, err := utils.BindValidJson[request.Component](ctx)
 	//参数校验失败
 	if err != nil {
@@ -101,8 +103,9 @@ func ModifyPageController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
 
-// ============================================================== 通知教师发布预选
+// ============================================================== 通知相关
 
+// Notice2TeacherController 通知教师进行预发布课程
 func Notice2TeacherController(ctx *gin.Context) {
 	_, c := service.Notice2Teacher()
 	if c != code.OK {
@@ -112,6 +115,7 @@ func Notice2TeacherController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
 
+// Notice2StudentController 通知学生进行选课
 func Notice2StudentController(ctx *gin.Context) {
 	_, c := service.Notice2Student()
 	if c != code.OK {
@@ -121,9 +125,10 @@ func Notice2StudentController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
 
-// ============================================================== 获取所有的预选课程
+// ============================================================== 课程相关
 
-func GetAllCourseController(ctx *gin.Context) {
+// ListPublishCourseController 获取所有的预选课程
+func ListPublishCourseController(ctx *gin.Context) {
 	validate, err := utils.BindValidJson[request.Pages](ctx)
 	//参数校验失败
 	if err != nil {
@@ -131,7 +136,7 @@ func GetAllCourseController(ctx *gin.Context) {
 		return
 	}
 
-	_, c := service.PreloadCourses(&validate)
+	_, c := service.ListPreloadCourse(&validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
@@ -139,6 +144,9 @@ func GetAllCourseController(ctx *gin.Context) {
 	utils.Success(ctx, code.GetMsg(c), nil)
 }
 
+// ============================================================== 分类相关
+
+// CreateCategoryController 创建新的课程分类
 func CreateCategoryController(ctx *gin.Context) {
 	validate, err := utils.BindValidJson[request.Category](ctx)
 	//参数校验失败

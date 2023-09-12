@@ -12,9 +12,11 @@ import (
 /*
 Created by 斑斑砖 on 2023/9/6.
 	Description：
-		课程相关的/创建课程/课程列表/我加入的课程等
+		课程相关的/创建课程/课程列表/我发布的课程/撤回发布课程等
 */
+// =================================================================== 课程相关
 
+// CreateCourseController 创建课程
 func CreateCourseController(ctx *gin.Context) {
 	// TODO 用户权限校验 ,只允许老师/管理员创建 这一步应该在中间层进行,
 
@@ -46,7 +48,7 @@ func ListCourseController(ctx *gin.Context) {
 	}
 	user, _ := utils.GetUser(ctx)
 	// 2. 调用服务
-	data, c := service.ListCourses(int(user.ID), &validate)
+	data, c := service.ListCourse(int(user.ID), &validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
@@ -57,22 +59,24 @@ func ListCourseController(ctx *gin.Context) {
 	)
 }
 
-func ListCourseCategoryController(ctx *gin.Context) {
-	validate, err := utils.BindValidQuery[request.Pages](ctx)
+// UpdateCourseController 修改课程信息
+func UpdateCourseController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.UpdateCourse](ctx)
 	if err != nil {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
-	// 2. 调用服务
-	data, c := service.GetCourseCategory(&validate)
+	user, _ := utils.GetUser(ctx)
+	_, c := service.UpdateCourse(int(user.ID), &validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
-	utils.Results(
-		ctx, int(data.(*response.List).Count), code.GetMsg(c), data.(*response.List).Data,
-	)
+	utils.Success(ctx, code.GetMsg(c), nil)
+
 }
+
+// =================================================================== 课程预发布，缓存预热
 
 // PublishCourseController 发布课程到缓存预热
 func PublishCourseController(ctx *gin.Context) {
@@ -88,6 +92,8 @@ func PublishCourseController(ctx *gin.Context) {
 	}
 	utils.Success(ctx, code.GetMsg(code.OK), nil)
 }
+
+// PublishListCourseController 获取我发布的课程
 func PublishListCourseController(ctx *gin.Context) {
 	validate, err := utils.BindValidQuery[request.Pages](ctx)
 	if err != nil {
@@ -108,6 +114,7 @@ func PublishListCourseController(ctx *gin.Context) {
 	)
 }
 
+// CancelPublishCourseController 取消发布
 func CancelPublishCourseController(ctx *gin.Context) {
 	validate, err := utils.BindValidJson[request.CancelPublishCourse](ctx)
 	if err != nil {
@@ -121,4 +128,24 @@ func CancelPublishCourseController(ctx *gin.Context) {
 		return
 	}
 	utils.Success(ctx, code.GetMsg(code.OK), nil)
+}
+
+// ==================================================================== 课程分类
+
+// ListCourseCategoryController 获取课程分类
+func ListCourseCategoryController(ctx *gin.Context) {
+	validate, err := utils.BindValidQuery[request.Pages](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	// 2. 调用服务
+	data, c := service.ListCourseCategory(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Results(
+		ctx, int(data.(*response.List).Count), code.GetMsg(c), data.(*response.List).Data,
+	)
 }

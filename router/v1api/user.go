@@ -11,7 +11,7 @@ import (
 
 /*
 Created by 斑斑砖 on 2023/9/5.
-Description：
+	Description： 用户相关的curd，获取用户信息，获取用户访问路由页面权限
 
 */
 

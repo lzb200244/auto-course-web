@@ -22,14 +22,10 @@ type Course struct {
 	data *request.Course
 }
 
-func NewCourse(data *request.Course) *Course {
-	return &Course{data: data}
-}
-
 func CreateCourse(userID int, data *request.Course) (interface{}, code.Code) {
-	return NewCourse(data).Do(userID)
+	return Course{data: data}.Do(userID)
 }
-func (course *Course) Do(userID int) (interface{}, code.Code) {
+func (course Course) Do(userID int) (interface{}, code.Code) {
 	if _, c := course.check(); c != code.OK {
 		return nil, c
 	}
@@ -41,7 +37,7 @@ func (course *Course) Do(userID int) (interface{}, code.Code) {
 }
 
 // 校验课程分类是否存
-func (course *Course) check() (interface{}, code.Code) {
+func (course Course) check() (interface{}, code.Code) {
 	if ok, _ := respository.Exist(&models.CourseCategory{}, "id", course.data.CategoryID); !ok {
 		return nil, code.ERROR_COURSE_CATEGORY_NOT_EXIST
 	}
@@ -49,7 +45,7 @@ func (course *Course) check() (interface{}, code.Code) {
 }
 
 // 创建到数据库
-func (course *Course) create(userID int) (interface{}, code.Code) {
+func (course Course) create(userID int) (interface{}, code.Code) {
 	course.data.UserID = userID
 	if _, err := respository.Creat("course", course.data, ""); err != nil {
 		return nil, code.ERROR_DB_OPE
@@ -59,16 +55,11 @@ func (course *Course) create(userID int) (interface{}, code.Code) {
 
 // =================================================================== 返回教师创建的课程列表
 
-type ListCourse struct {
+type Courses struct {
 	data *request.Pages
 }
 
-func NewListCourse(data *request.Pages) *ListCourse {
-	return &ListCourse{
-		data: data,
-	}
-}
-func (list *ListCourse) Do(userID int) (interface{}, code.Code) {
+func (list Courses) Do(userID int) (interface{}, code.Code) {
 
 	var courses []*response.CourseResponse
 	resp := &response.List{}
@@ -96,8 +87,47 @@ func (list *ListCourse) Do(userID int) (interface{}, code.Code) {
 	resp.Count = count
 	return resp, code.OK
 }
-func ListCourses(userID int, data *request.Pages) (interface{}, code.Code) {
-	return NewListCourse(data).Do(userID)
+func ListCourse(userID int, data *request.Pages) (interface{}, code.Code) {
+	return Courses{
+		data: data,
+	}.Do(userID)
+}
+
+// =================================================================== 更新课程
+
+type UpdateCourses struct {
+	data *request.UpdateCourse
+}
+
+func UpdateCourse(userID int, data *request.UpdateCourse) (interface{}, code.Code) {
+	return UpdateCourses{data: data}.Do(userID)
+}
+func (course UpdateCourses) Do(userID int) (interface{}, code.Code) {
+	if _, c := course.check(userID); c != code.OK {
+		return nil, c
+	}
+	if _, c := course.update(); c != code.OK {
+		return nil, c
+	}
+	return nil, code.OK
+}
+func (course UpdateCourses) check(userID int) (interface{}, code.Code) {
+	//是否存在该课程，且是否是自己创建的
+	exist, err := respository.Exist(&models.Course{}, "id=? and user_id=?", course.data.ID, userID)
+	if err != nil {
+		return nil, 0
+	}
+	if !exist {
+		return nil, code.ERROR_COURSE_NOT_EXIST
+	}
+	return nil, code.OK
+}
+func (course UpdateCourses) update() (interface{}, code.Code) {
+	if err := respository.Updates(
+		&models.Course{}, &course.data, "id=?", course.data.ID); err != nil {
+		return nil, code.ERROR_UPDATE_USER
+	}
+	return nil, code.OK
 }
 
 // =================================================================== 获取课程分类
@@ -106,14 +136,11 @@ type CourseCategory struct {
 	data *request.Pages
 }
 
-func NewGetCourseCategory(data *request.Pages) *CourseCategory {
-	return &CourseCategory{data: data}
-}
-func GetCourseCategory(data *request.Pages) (interface{}, code.Code) {
-	return NewGetCourseCategory(data).Do()
+func ListCourseCategory(data *request.Pages) (interface{}, code.Code) {
+	return CourseCategory{data: data}.Do()
 
 }
-func (category *CourseCategory) Do() (interface{}, code.Code) {
+func (category CourseCategory) Do() (interface{}, code.Code) {
 	var categories []*response.CategoryResponse
 	resp := &response.List{}
 	count, err := respository.List(
@@ -137,14 +164,10 @@ type PreLoadCourse struct {
 	data *request.PreloadCourse
 }
 
-func NewPublishCourse(data *request.PreloadCourse) *PreLoadCourse {
-	return &PreLoadCourse{data: data}
-}
-
 func PreLoadCourse2Redis(data *request.PreloadCourse) (interface{}, code.Code) {
-	return NewPublishCourse(data).Do()
+	return PreLoadCourse{data: data}.Do()
 }
-func (course *PreLoadCourse) Do() (interface{}, code.Code) {
+func (course PreLoadCourse) Do() (interface{}, code.Code) {
 	if _, c := course.check(); c != code.OK {
 		return nil, c
 	}
@@ -156,7 +179,7 @@ func (course *PreLoadCourse) Do() (interface{}, code.Code) {
 }
 
 // 校验课程是否存在/是否处于预选课状态
-func (course *PreLoadCourse) check() (interface{}, code.Code) {
+func (course PreLoadCourse) check() (interface{}, code.Code) {
 	//1. 是否处于预选课状态
 	if result, _ := global.Redis.Exists(keys.IsPreLoadedKey).Result(); result == 0 {
 		//不处于预选课状态
@@ -178,7 +201,7 @@ func (course *PreLoadCourse) check() (interface{}, code.Code) {
 }
 
 // 预热到redis
-func (course *PreLoadCourse) load2Redis() (interface{}, code.Code) {
+func (course PreLoadCourse) load2Redis() (interface{}, code.Code) {
 	err := global.Redis.HSet(
 		keys.PreLoadCourseKey,
 		strconv.Itoa(course.data.CourseID),
@@ -198,11 +221,8 @@ type CancelPublishCourse struct {
 	data *request.CancelPublishCourse
 }
 
-func NewCancelPublishCourse(data *request.CancelPublishCourse) *CancelPublishCourse {
-	return &CancelPublishCourse{data: data}
-}
 func CancelCourse2Redis(userID int, data *request.CancelPublishCourse) (interface{}, code.Code) {
-	return NewCancelPublishCourse(data).Do(userID)
+	return CancelPublishCourse{data: data}.Do(userID)
 }
 func (course CancelPublishCourse) Do(userID int) (interface{}, code.Code) {
 	//是否是我的创建的课程
@@ -248,15 +268,12 @@ type ListPublishCourse struct {
 	data *request.Pages
 }
 
-func NewListPublishCourse(data *request.Pages) *ListPublishCourse {
-	return &ListPublishCourse{
-		data: data,
-	}
-}
 func ListPublishCourses(userID int, data *request.Pages) (interface{}, code.Code) {
-	return NewListPublishCourse(data).Do(userID)
+	return ListPublishCourse{
+		data: data,
+	}.Do(userID)
 }
-func (list *ListPublishCourse) Do(userID int) (interface{}, code.Code) {
+func (list ListPublishCourse) Do(userID int) (interface{}, code.Code) {
 	result, _ := global.Redis.SMembers(keys.PreLoadCourseListKey).Result()
 	var courses []*response.PublishCourseResponse
 	resp := &response.List{}

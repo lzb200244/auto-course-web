@@ -25,6 +25,15 @@ type Course struct {
 	EndTime   int64 `json:"endTime" validate:"required"  label:"结束时间"`
 }
 
+type UpdateCourse struct {
+	ID         int    `json:"id"  label:"课程ID"`
+	Title      string `json:"title"   label:"课程名称"`
+	Desc       string `json:"desc"    label:"课程描述"`
+	Cover      string `json:"cover"  label:"封面" `
+	Schedule   string `json:"schedule"   label:"上课时间段"`
+	CategoryID uint   `json:"categoryID" validate:"required"  label:"分类ID"`
+}
+
 // PreloadCourse 教师接收到管理员的通知，加载课程到缓存
 type PreloadCourse struct {
 	CourseID int `json:"courseID" form:"courseID" url:"courseID" validate:"required,min=0"  label:"课程ID"`
