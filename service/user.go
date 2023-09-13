@@ -233,15 +233,20 @@ func UpdateInfo(userID uint, req *request.UserInfo) (interface{}, code.Code) {
 // Do 更新用户信息
 func (u *UserInfoUpdate) Do(userID uint) (interface{}, code.Code) {
 	//1. 判断新的邮箱是否存在
+	
+	//2. 更新
+	if err := respository.Updates(&models.User{}, &u.data, "id=?", userID); err != nil {
+		return nil, code.ERROR_UPDATE_USER
+	}
+	return &u.data, code.OK
+}
+
+func (u *UserInfoUpdate) check(userID int) (interface{}, code.Code) {
 	if u.data.Email != "" {
 		ok, _ := respository.Exist(&models.User{}, "email=? and id !=?", u.data.Email, userID)
 		if ok {
 			return nil, code.ERROR_EMAIL_EXIST
 		}
 	}
-	//2. 更新
-	if err := respository.Updates(&models.User{}, &u.data, "id=?", userID); err != nil {
-		return nil, code.ERROR_UPDATE_USER
-	}
-	return &u.data, code.OK
+	return nil, code.OK
 }

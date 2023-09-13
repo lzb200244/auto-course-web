@@ -20,8 +20,10 @@ Description：
 
 func InitApiRouter() *gin.Engine {
 	var router *gin.Engine
+
 	if global.Config.Project.Mode == "dev" {
 		gin.SetMode(gin.DebugMode)
+		gin.ForceConsoleColor()
 		router = gin.Default()
 
 	} else {

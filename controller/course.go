@@ -3,7 +3,6 @@ package controller
 import (
 	"auto-course-web/global/code"
 	"auto-course-web/models/request"
-	"auto-course-web/models/response"
 	"auto-course-web/service"
 	"auto-course-web/utils"
 	"github.com/gin-gonic/gin"
@@ -53,9 +52,8 @@ func ListCourseController(ctx *gin.Context) {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
-	d := data.(*response.List)
-	utils.Results(
-		ctx, int(d.Count), code.GetMsg(c), d.Data,
+	utils.Success(
+		ctx, code.GetMsg(c), data,
 	)
 }
 
@@ -108,9 +106,8 @@ func PublishListCourseController(ctx *gin.Context) {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
-	d := data.(*response.List)
-	utils.Results(
-		ctx, int(d.Count), code.GetMsg(c), d.Data,
+	utils.Success(
+		ctx, code.GetMsg(c), data,
 	)
 }
 
@@ -145,7 +142,7 @@ func ListCourseCategoryController(ctx *gin.Context) {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
-	utils.Results(
-		ctx, int(data.(*response.List).Count), code.GetMsg(c), data.(*response.List).Data,
+	utils.Success(
+		ctx, code.GetMsg(c), data,
 	)
 }

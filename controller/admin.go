@@ -129,19 +129,19 @@ func Notice2StudentController(ctx *gin.Context) {
 
 // ListPublishCourseController 获取所有的预选课程
 func ListPublishCourseController(ctx *gin.Context) {
-	validate, err := utils.BindValidJson[request.Pages](ctx)
+	validate, err := utils.BindValidQuery[request.Pages](ctx)
 	//参数校验失败
 	if err != nil {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
 
-	_, c := service.ListPreloadCourse(&validate)
+	data, c := service.ListPreloadCourse(&validate)
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
-	utils.Success(ctx, code.GetMsg(c), nil)
+	utils.Success(ctx, code.GetMsg(c), data)
 }
 
 // ============================================================== 分类相关

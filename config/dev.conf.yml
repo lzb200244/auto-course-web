@@ -50,3 +50,9 @@ email:
   host: "smtp.qq.com" # 邮箱
   port: 465
   pass: "mjghadywnsiehaab" # 密码
+rabbitmq:
+  host: '192.168.10.131'
+  port: 5672
+  username: 'admin'
+  password: 'admin'
+  vhost: '/'

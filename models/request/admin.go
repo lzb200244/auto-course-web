@@ -23,6 +23,7 @@ type Meta struct {
 	Title       string `json:"title"  label:"标题"`
 	KeepAlive   bool   `json:"keepAlive"  label:"是否缓存"`
 	RequireAuth bool   `json:"requireAuth"  label:"是否需要认证"`
+	Icon        string `json:"icon"  label:"图标"`
 }
 type Component struct {
 	Name      string `json:"name"  validate:"required" label:"组件名称"`

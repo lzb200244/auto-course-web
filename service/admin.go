@@ -29,12 +29,25 @@ func AddAuth(data *request.Auths) (interface{}, code.Code) {
 }
 func (auths Auths) Do() (interface{}, code.Code) {
 	// 1.角色是否存在
-
+	if _, c := auths.check(); c != code.OK {
+		return nil, c
+	}
 	// 2. 给角色赋予权限
-	err := respository.AddAuth(auths.Data.RoleID, auths.Data.Permission)
-	if err != nil {
+	if err := respository.AddAuth(auths.Data.RoleID, auths.Data.Permission); err != nil {
 		//TODO	log
 		return nil, code.ERROR_ADD_AUTH
+	}
+	return nil, code.OK
+}
+
+func (auths Auths) check() (interface{}, code.Code) {
+	exist, err := respository.Exist(&models.Role{}, "id", auths.Data.RoleID)
+	if err != nil {
+		//TODO log
+		return nil, code.ERROR_DB_OPE
+	}
+	if !exist {
+		return nil, code.ERROR_ROLE_NOT_EXIST
 	}
 	return nil, code.OK
 }
@@ -55,8 +68,7 @@ func (auth Auth) Do() (interface{}, code.Code) {
 	// 1.角色是否存在
 
 	// 2. 给角色赋予权限
-	err := respository.DeleteAuth(auth.Data.RoleID, auth.Data.PermissionID)
-	if err != nil {
+	if err := respository.DeleteAuth(auth.Data.RoleID, auth.Data.PermissionID); err != nil {
 		//TODO	log
 		return nil, code.ERROR_DEL_AUTH
 	}
@@ -73,9 +85,8 @@ func CreatePermission(data *request.Permission) (interface{}, code.Code) {
 	return Permission{Data: data}.Do()
 }
 func (p Permission) Do() (interface{}, code.Code) {
-	err := respository.Create(&models.Permission{Name: p.Data.Name})
-	if err != nil {
-		return nil, code.ERROR_CREATE_PERMISSION
+	if err := respository.Create(&models.Permission{Name: p.Data.Name}); err != nil {
+		return nil, code.ERROR_DB_OPE
 	}
 	return nil, code.OK
 }
@@ -91,12 +102,13 @@ func CreatePage(data *request.Component) (interface{}, code.Code) {
 }
 func (c Component) Do() (interface{}, code.Code) {
 	var roles []*models.Role
-	_, err := respository.List(models.Role{}, &roles, nil, "", "id in ?", c.data.Role)
-	if err != nil {
+
+	if _, err := respository.List(
+		models.Role{}, &roles, nil, "", "id in ?", c.data.Role,
+	); err != nil {
 		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
-
 	comp := models.Router{
 		Name:      c.data.Name,
 		Component: c.data.Component,
@@ -202,7 +214,7 @@ func ListPreloadCourse(data *request.Pages) (interface{}, code.Code) {
 func (list PreloadCourse) Do() (interface{}, code.Code) {
 	result, _ := global.Redis.SMembers(keys.PreLoadCourseListKey).Result()
 	var courses []*response.PublishCourseResponse
-	resp := &response.List{}
+	var resp response.List
 	count, err := respository.List(
 		models.Course{},
 		&courses,
@@ -218,7 +230,7 @@ func (list PreloadCourse) Do() (interface{}, code.Code) {
 	for _, course := range courses {
 		course.Capacity = m[strconv.Itoa(int(course.ID))]
 	}
-	resp.Data = courses
+	resp.Results = courses
 	resp.Count = count
 	return resp, code.OK
 }

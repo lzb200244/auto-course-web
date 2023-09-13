@@ -30,6 +30,7 @@ type Meta struct {
 	Title       string `json:"title" gorm:"default:''" `
 	KeepAlive   bool   `json:"keepAlive" gorm:"default:false"`
 	RequireAuth bool   `json:"requireAuth" gorm:"default:true"`
+	Icon        string `json:"icon" gorm:"default:''"`
 }
 type Router struct {
 	gorm.Model

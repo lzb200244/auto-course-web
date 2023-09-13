@@ -7,12 +7,18 @@ import (
 )
 
 // InitConfig 初始化viper加载配置文件
-func InitConfig() {
+func InitConfig(path string) {
+
 	v := viper.New()
 	v.SetConfigType("yaml")
 	//v.SetConfigName("dev.conf") // 设置配置文件名
 	//v.AddConfigPath("./config")
-	v.SetConfigFile("./config/dev.conf.yml")
+	if path != "" {
+		v.SetConfigFile(path)
+	} else {
+		v.SetConfigFile("./config/dev.conf.yml")
+	}
+
 	if err := v.ReadInConfig(); err != nil {
 		panic(err)
 	}

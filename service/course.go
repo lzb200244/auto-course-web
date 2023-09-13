@@ -62,7 +62,7 @@ type Courses struct {
 func (list Courses) Do(userID int) (interface{}, code.Code) {
 
 	var courses []*response.CourseResponse
-	resp := &response.List{}
+	var resp response.List
 	count, err := respository.List(
 		models.Course{},
 		&courses,
@@ -83,7 +83,7 @@ func (list Courses) Do(userID int) (interface{}, code.Code) {
 			course.IsPreLoad = true
 		}
 	}
-	resp.Data = courses
+	resp.Results = courses
 	resp.Count = count
 	return resp, code.OK
 }
@@ -142,7 +142,7 @@ func ListCourseCategory(data *request.Pages) (interface{}, code.Code) {
 }
 func (category CourseCategory) Do() (interface{}, code.Code) {
 	var categories []*response.CategoryResponse
-	resp := &response.List{}
+	var resp response.List
 	count, err := respository.List(
 		models.CourseCategory{},
 		&categories,
@@ -153,7 +153,7 @@ func (category CourseCategory) Do() (interface{}, code.Code) {
 	if err != nil {
 		return nil, code.ERROR_DB_OPE
 	}
-	resp.Data = categories
+	resp.Results = categories
 	resp.Count = count
 	return resp, code.OK
 }
@@ -276,7 +276,7 @@ func ListPublishCourses(userID int, data *request.Pages) (interface{}, code.Code
 func (list ListPublishCourse) Do(userID int) (interface{}, code.Code) {
 	result, _ := global.Redis.SMembers(keys.PreLoadCourseListKey).Result()
 	var courses []*response.PublishCourseResponse
-	resp := &response.List{}
+	var resp response.List
 	count, err := respository.List(
 		models.Course{},
 		&courses,
@@ -291,7 +291,7 @@ func (list ListPublishCourse) Do(userID int) (interface{}, code.Code) {
 	for _, course := range courses {
 		course.Capacity = m[strconv.Itoa(int(course.ID))]
 	}
-	resp.Data = courses
+	resp.Results = courses
 	resp.Count = count
 	return resp, code.OK
 }

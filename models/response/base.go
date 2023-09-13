@@ -6,6 +6,6 @@ Description：
 */
 
 type List struct {
-	Data  interface{}
-	Count int64
+	Results interface{} `json:"results"`
+	Count   int64       `json:"count"`
 }

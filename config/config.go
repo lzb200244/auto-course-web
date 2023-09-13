@@ -8,9 +8,14 @@ import (
 type Configuration struct {
 	//项目配置项
 	Project autoload.Project `mapstructure:"project" json:"project" yaml:"project"`
-	Mysql   db.Mysql         `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
-	Redis   db.Redis         `mapstructure:"redis" json:"redis" yaml:"redis"`
-	Log     autoload.Log     `mapstructure:"log" json:"log" yaml:"log"`
+	//mysql配置
+	Mysql db.Mysql `mapstructure:"mysql" json:"mysql" yaml:"mysql"`
+	//redis配置
+	Redis db.Redis `mapstructure:"redis" json:"redis" yaml:"redis"`
+	//日志配置
+	Log autoload.Log `mapstructure:"log" json:"log" yaml:"log"`
+	//rabbitmq配置
+	RabbitMQ autoload.RabbitMQ `mapstructure:"rabbitmq" json:"rabbitmq" yaml:"rabbitmq"`
 	//jwt配置项
 	Jwt autoload.Jwt `mapstructure:"jwt" json:"jwt" yaml:"jwt"`
 	//七牛云配置
