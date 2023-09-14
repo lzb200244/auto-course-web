@@ -2,6 +2,7 @@ package service
 
 import (
 	"auto-course-web/global"
+	"auto-course-web/global/auth"
 	"auto-course-web/global/code"
 	"auto-course-web/global/keys"
 	"auto-course-web/models"
@@ -180,13 +181,13 @@ func (n NoticeTeacher) Do() (interface{}, code.Code) {
 	global.MysqlDB.
 		Model(&models.User{}).
 		Select("email").
-		Where("id IN (SELECT user_id FROM user_roles WHERE role_id = ?)", 2).Find(&emails)
+		Where("role_id = ?", auth.Teacher).Find(&emails)
 
 	//2. 发送邮件（异步）TODO 消息队列进行处理
-	go tencent.SendEmail("预发布通知", "亲爱的老师：您好,您的课程正在进行预发布。", emails)
+	go tencent.SendEmail("课程通预发布通知", "亲爱的老师：您好,您的课程正在进行预发布。", emails)
 
 	//3. 开启预发布通道 ,不存在时才进行创建,存在了只进行预先通知,不进行再次开启通道
-	global.Redis.SetNX(keys.IsPreLoadedKey, 1, keys.PreLoadedDurationKey)
+	global.Redis.SetNX(keys.IsPreLoadedKey, 1, keys.PreSelectedDurationKey)
 
 	return nil, code.OK
 }
@@ -197,12 +198,28 @@ type NoticeStudent struct {
 }
 
 func Notice2Student() (interface{}, code.Code) {
-	return NoticeTeacher{}.Do()
+	return NoticeStudent{}.Do()
 }
-
 func (n NoticeStudent) Do() (interface{}, code.Code) {
+	//发布通知给学生，进行选课，开启选课
+
+	//1. 获取所有教师email
+	var emails []string
+	global.MysqlDB.
+		Model(&models.User{}).
+		Select("email").
+		Where("role_id = ?", auth.Student).Find(&emails)
+
+	//2. 发送邮件（异步）TODO 消息队列进行处理
+	go tencent.SendEmail("课程通选课通知", "xxx学生：您好,您的课程正在进行选课阶段。", emails)
+
+	//3. 开启预发布通道 ,不存在时才进行创建,存在了只进行预先通知,不进行再次开启通道
+	global.Redis.SetNX(keys.IsSelectCourseKey, 1, keys.SelectCourseDurationKey)
+
 	return nil, code.OK
 }
+
+// ================================================================= 获取所有的预选课程
 
 type PreloadCourse struct {
 	data *request.Pages
