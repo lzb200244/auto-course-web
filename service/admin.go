@@ -19,6 +19,7 @@ Description：
 
 	权限的服务层,赋予权限和删除权限等操作
 */
+
 // ================================================================== 给角色新增权限
 
 type Auths struct {
@@ -200,7 +201,7 @@ type NoticeStudent struct {
 func Notice2Student() (interface{}, code.Code) {
 	return NoticeStudent{}.Do()
 }
-func (n NoticeStudent) Do() (interface{}, code.Code) {
+func (notice NoticeStudent) Do() (interface{}, code.Code) {
 	//发布通知给学生，进行选课，开启选课
 
 	//1. 获取所有教师email
@@ -209,13 +210,31 @@ func (n NoticeStudent) Do() (interface{}, code.Code) {
 		Model(&models.User{}).
 		Select("email").
 		Where("role_id = ?", auth.Student).Find(&emails)
-
 	//2. 发送邮件（异步）TODO 消息队列进行处理
 	go tencent.SendEmail("课程通选课通知", "xxx学生：您好,您的课程正在进行选课阶段。", emails)
-
 	//3. 开启预发布通道 ,不存在时才进行创建,存在了只进行预先通知,不进行再次开启通道
 	global.Redis.SetNX(keys.IsSelectCourseKey, 1, keys.SelectCourseDurationKey)
-
+	//4. 迁移：待选区课程-》选课区
+	if _, c := notice.load2Redis(); c != code.OK {
+		return nil, c
+	}
+	return nil, code.OK
+}
+func (notice NoticeStudent) load2Redis() (interface{}, code.Code) {
+	pipeline := global.Redis.Pipeline()
+	courseSet := global.Redis.SMembers(keys.PreLoadCourseListKey)
+	for _, course := range courseSet.Val() {
+		pipeline.SAdd(keys.SelectCourseListKey, course)
+	}
+	data := global.Redis.HGetAll(keys.PreLoadCourseKey)
+	for k, v := range data.Val() {
+		pipeline.HSet(keys.SelectCourseKey, k, v)
+	}
+	//pipeline.Expire(keys.SelectCourseKey, keys.SelectCourseDurationKey)
+	//pipeline.Expire(keys.SelectCourseListKey, keys.SelectCourseDurationKey)
+	if _, err := pipeline.Exec(); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
 	return nil, code.OK
 }
 

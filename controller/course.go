@@ -74,6 +74,10 @@ func UpdateCourseController(ctx *gin.Context) {
 
 }
 
+func DetailCourseController(ctx *gin.Context) {
+
+}
+
 // =================================================================== 课程预发布，缓存预热
 
 // PublishCourseController 发布课程到缓存预热

@@ -54,6 +54,8 @@ func InitApiRouter() *gin.Engine {
 			v1api.SetupAdmin(admin)
 			course := authored.Group("courses")
 			v1api.SetupCourse(course)
+			election := authored.Group("election")
+			v1api.SetupElection(election)
 
 		}
 

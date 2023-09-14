@@ -15,13 +15,14 @@ func main() {
 }
 
 func Init() {
-	//加载配置
+	// 加载配置
 	initialize.InitConfig("")
-	//初始化zap日志管理
+	// 初始化zap日志管理
 	initialize.InitLogger()
-	//初始化mysql
+	// 初始化mysql
 	initialize.InitMysql()
 	// 初始化redis
 	initialize.InitRedis()
-
+	// 初始化rabbitmq
+	initialize.InitRabbitMQ()
 }
