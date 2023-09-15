@@ -51,3 +51,16 @@ func CreateSelectCourseController(ctx *gin.Context) {
 	}
 	utils.Success(ctx, code.GetMsg(code.OK), data)
 }
+
+// ==================================================================== 我选的课程
+
+func ListMySelectCourseController(ctx *gin.Context) {
+	user, _ := utils.GetUser(ctx)
+	// 2. 调用服务
+	data, c := service.ListMySelectCourses(int(user.ID))
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(code.OK), data)
+}

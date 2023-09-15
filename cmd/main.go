@@ -25,4 +25,5 @@ func Init() {
 	initialize.InitRedis()
 	// 初始化rabbitmq
 	initialize.InitRabbitMQ()
+
 }

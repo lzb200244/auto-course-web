@@ -40,7 +40,6 @@ func (list SelectCourseList) list() (interface{}, code.Code) {
 	result, _ := global.Redis.SMembers(keys.SelectCourseListKey).Result()
 	var courses []*response.SelectCourseResponse
 	var resp response.List
-
 	count, err := respository.QuerySelectCourse(
 		models.Course{},
 		&courses,
@@ -55,10 +54,16 @@ func (list SelectCourseList) list() (interface{}, code.Code) {
 		//TODO log
 		return nil, code.ERROR_DB_OPE
 	}
-	m, err := global.Redis.HGetAll(keys.SelectCourseKey).Result()
+	left, err := global.Redis.HGetAll(keys.SelectCourseKey).Result()
+	capacity, err := global.Redis.HGetAll(keys.PreLoadCourseKey).Result()
 	for _, course := range courses {
-		course.Capacity = m[strconv.Itoa(int(course.ID))]
+		courseID := strconv.Itoa(int(course.ID))
+		l, _ := strconv.Atoi(left[courseID])
+		c, _ := strconv.Atoi(capacity[courseID])
+		course.Capacity = c
+		course.Left = l
 	}
+
 	resp.Results = courses
 	resp.Count = count
 	return resp, code.OK
@@ -79,16 +84,19 @@ func (create SelectCourse) Do(userID int) (interface{}, code.Code) {
 		return nil, c
 	}
 	//	2. 判断用户操作，再次点击就是退课操作
-	key := keys.UserSelectedCourseListKey + strconv.Itoa(userID)
-	//是否超过选课上限
-	count, err := global.Redis.SCard(key).Result()
-	if err != nil {
-		//TODO log
-		return nil, code.ERROR_DB_OPE
-	}
-	if count >= keys.SelectCourseMax {
-		return nil, code.ERROR_SELECT_COURSE_BEYOND
-	}
+	/*
+		key := keys.UserSelectedCourseListKey + strconv.Itoa(userID)
+		//是否超过选课上限
+		count, err := global.Redis.SCard(key).Result()
+		if err != nil {
+			//TODO log
+			return nil, code.ERROR_DB_OPE
+		}
+		if count >= keys.SelectCourseMax {
+			return nil, code.ERROR_SELECT_COURSE_BEYOND
+		}
+
+	*/
 	//原子操作
 	data, c := create.created(userID)
 	if c != code.OK {
@@ -166,7 +174,6 @@ func (create SelectCourse) cancel(userID int) (interface{}, code.Code) {
 	//3. 丢入消息队列进行处理退课等操作
 	return nil, code.OK
 }
-
 func (create SelectCourse) created(userID int) (interface{}, code.Code) {
 	//1. 通过lua脚本进行原子操作，其中包括，判断是否还剩余课程，剩余就进行创建进行对应课程-1操作，加入到用户的已选集合
 	script := redis.NewScript(keys.LuaScript2SelectCourse)
@@ -191,11 +198,11 @@ func (create SelectCourse) created(userID int) (interface{}, code.Code) {
 	case election.CourseSuccess:
 		//选课成功
 		//data := res[1].(int64)
-		fmt.Println("选课成功")
+		//fmt.Println("选课成功")
 		//创建丢入消息队列进行创建选课记录等操作。
 	case election.CourseWithdraw:
 		//data := res[1].(int64)
-		fmt.Println("退课成功")
+		//fmt.Println("退课成功")
 
 		//丢入消息队列进行退课等操作记录
 	}
@@ -203,4 +210,36 @@ func (create SelectCourse) created(userID int) (interface{}, code.Code) {
 		CourseID: create.data.ID,
 		Capacity: int(res[1].(int64)),
 	}, code.OK
+}
+
+// ============================================================================ 我选择的课程
+
+type MySelectCourseList struct {
+}
+
+func ListMySelectCourses(userID int) (interface{}, code.Code) {
+	return MySelectCourseList{}.Do(userID)
+}
+func (list MySelectCourseList) Do(userID int) (interface{}, code.Code) {
+	key := keys.UserSelectedCourseListKey + strconv.Itoa(userID)
+	result, err := global.Redis.SMembers(key).Result()
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	var courses []*response.SelectCourseResponse
+	var resp response.List
+	count, err := respository.QuerySelectCourse(
+		models.Course{},
+		&courses,
+		nil,
+		"",
+		"id in ?  ",
+		"",
+		0,
+		result,
+	)
+	resp.Results = courses
+	resp.Count = count
+	return resp, code.OK
+
 }

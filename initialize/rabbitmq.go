@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"auto-course-web/global"
+	"auto-course-web/initialize/consumer"
 	"github.com/streadway/amqp"
 )
 
@@ -23,6 +24,8 @@ func InitRabbitMQ() {
 	}
 	global.RabbitMQ = ch
 
+	//初始化mq
+	consumer.InitEmailListener()
 	//TODO 初始化队列和交换机等操作
 	global.Logger.Debug("rabbitmq初始化成功！")
 

@@ -122,7 +122,7 @@ var codeMsg = map[Code]string{
 	ERROR_COURSE_DELETE:           "课程删除失败",
 	ERROR_COURSE_ALREADY:          "课程已发布",
 	ERROR_COURSE_NOT_ENOUGH:       "课程已被抢完",
-	ERROR_SELECT_COURSE_BEYOND:    "选课课程过多",
+	ERROR_SELECT_COURSE_BEYOND:    "每人仅限选5门课程",
 }
 
 func GetMsg(code Code) string {

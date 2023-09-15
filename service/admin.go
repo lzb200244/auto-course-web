@@ -5,7 +5,9 @@ import (
 	"auto-course-web/global/auth"
 	"auto-course-web/global/code"
 	"auto-course-web/global/keys"
+	"auto-course-web/initialize/consumer"
 	"auto-course-web/models"
+	"auto-course-web/models/mq"
 	"auto-course-web/models/request"
 	"auto-course-web/models/response"
 	"auto-course-web/respository"
@@ -184,8 +186,15 @@ func (n NoticeTeacher) Do() (interface{}, code.Code) {
 		Select("email").
 		Where("role_id = ?", auth.Teacher).Find(&emails)
 
-	//2. 发送邮件（异步）TODO 消息队列进行处理
-	go tencent.SendEmail("课程通预发布通知", "亲爱的老师：您好,您的课程正在进行预发布。", emails)
+	//2. 发送邮件（异步）
+	//go tencent.SendEmail("课程通预发布通知", "亲爱的老师：您好,您的课程正在进行预发布。", emails)
+	consumer.EmailConsumer.Product(
+		mq.EmailReq{
+			Title:   "课程通预发布通知",
+			Message: "亲爱的老师：您好,您的课程正在进行预发布。",
+			Users:   emails,
+		},
+	)
 
 	//3. 开启预发布通道 ,不存在时才进行创建,存在了只进行预先通知,不进行再次开启通道
 	global.Redis.SetNX(keys.IsPreLoadedKey, 1, keys.PreSelectedDurationKey)
