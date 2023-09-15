@@ -65,6 +65,8 @@ const (
 	ERROR_PRELOAD_COURSE_CLOSE    Code = 10001
 	ERROR_COURSE_DELETE                = 10002
 	ERROR_COURSE_ALREADY               = 10003
+	ERROR_COURSE_NOT_ENOUGH            = 10004
+	ERROR_SELECT_COURSE_BEYOND         = 10005
 )
 
 var codeMsg = map[Code]string{
@@ -119,6 +121,8 @@ var codeMsg = map[Code]string{
 	ERROR_PRELOAD_COURSE_CLOSE:    "预发布已关闭",
 	ERROR_COURSE_DELETE:           "课程删除失败",
 	ERROR_COURSE_ALREADY:          "课程已发布",
+	ERROR_COURSE_NOT_ENOUGH:       "课程已被抢完",
+	ERROR_SELECT_COURSE_BEYOND:    "选课课程过多",
 }
 
 func GetMsg(code Code) string {

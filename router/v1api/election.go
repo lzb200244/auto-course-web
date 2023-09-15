@@ -13,4 +13,5 @@ Description：
 
 func SetupElection(group *gin.RouterGroup) {
 	group.GET("selects/", controller.ListSelectCourseController)
+	group.POST("selects/", controller.CreateSelectCourseController)
 }
