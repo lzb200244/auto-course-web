@@ -15,29 +15,9 @@ Description：
 func Migrate() {
 
 	err := global.MysqlDB.AutoMigrate(
-		User{}, Role{}, Permission{}, &Router{},
-		&CourseCategory{}, &Course{},
+		User{}, Role{}, Permission{}, &Router{}, &College{},
+		&CourseCategory{}, &Course{}, &CourseSchedule{},
 	)
-	/*
-		//创建角色 #########################################################################################
-		//清空表
-		//global.MysqlDB.Where("1 = 1").Delete(Role{})
-		roleList := []string{"admin", "opt", "user"}
-		for _, v := range roleList {
-			global.MysqlDB.Create(&Role{
-				Name: v,
-			})
-		}
-
-		//创建权限 #########################################################################################
-		permissionList := []string{"create", "update", "delete"}
-		for _, v := range permissionList {
-			global.MysqlDB.Create(&Permission{
-				Name: v,
-			})
-		}
-
-	*/
 	if err != nil {
 		global.Logger.Error("migrate table failed", zap.Any("err", err))
 		os.Exit(0)

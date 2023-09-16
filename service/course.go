@@ -8,6 +8,9 @@ import (
 	"auto-course-web/models/request"
 	"auto-course-web/models/response"
 	"auto-course-web/respository"
+	"auto-course-web/utils"
+	"errors"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -16,7 +19,7 @@ import (
 	Description：
 */
 
-// =================================================================== 创建课程,并未进行预热到缓存
+// =================================================================== 创建课程,并
 
 type Course struct {
 	data *request.Course
@@ -44,9 +47,19 @@ func (course Course) check() (interface{}, code.Code) {
 	return nil, code.OK
 }
 
-// 创建到数据库
 func (course Course) create(userID int) (interface{}, code.Code) {
+	var schedule *models.CourseSchedule
+	_, err := respository.GetOne(&schedule, "id=?", course.data.Duration)
+	if err != nil {
+		//是否存在该schedule
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, code.ERROR_COURSE_SCHEDULE_NOT_EXIST
+		}
+		return nil, code.ERROR_DB_OPE
+	}
 	course.data.UserID = userID
+	course.data.Schedule = schedule.Duration
+	course.data.Code = "CS" + utils.GenerateRandomCode(5)
 	if _, err := respository.Creat("course", course.data, ""); err != nil {
 		return nil, code.ERROR_DB_OPE
 	}
@@ -59,11 +72,15 @@ type Courses struct {
 	data *request.Pages
 }
 
+func ListCourse(userID int, data *request.Pages) (interface{}, code.Code) {
+	return Courses{
+		data: data,
+	}.Do(userID)
+}
 func (list Courses) Do(userID int) (interface{}, code.Code) {
-
 	var courses []*response.CourseResponse
 	var resp response.List
-	count, err := respository.List(
+	count, err := respository.QueryCourseList(
 		models.Course{},
 		&courses,
 		list.data,
@@ -86,11 +103,6 @@ func (list Courses) Do(userID int) (interface{}, code.Code) {
 	resp.Results = courses
 	resp.Count = count
 	return resp, code.OK
-}
-func ListCourse(userID int, data *request.Pages) (interface{}, code.Code) {
-	return Courses{
-		data: data,
-	}.Do(userID)
 }
 
 // =================================================================== 更新课程
@@ -115,7 +127,7 @@ func (course UpdateCourses) check(userID int) (interface{}, code.Code) {
 	//是否存在该课程，且是否是自己创建的
 	exist, err := respository.Exist(&models.Course{}, "id=? and user_id=?", course.data.ID, userID)
 	if err != nil {
-		return nil, 0
+		return nil, code.ERROR_DB_OPE
 	}
 	if !exist {
 		return nil, code.ERROR_COURSE_NOT_EXIST
@@ -123,21 +135,56 @@ func (course UpdateCourses) check(userID int) (interface{}, code.Code) {
 	return nil, code.OK
 }
 func (course UpdateCourses) update() (interface{}, code.Code) {
+	var schedule *models.CourseSchedule
+	if course.data.Duration != 0 {
+		_, err := respository.GetOne(&schedule, "id=?", course.data.Duration)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, code.ERROR_COURSE_SCHEDULE_NOT_EXIST
+			}
+			return nil, code.ERROR_DB_OPE
+		}
+	}
+	course.data.Schedule = schedule.Duration
 	if err := respository.Updates(
 		&models.Course{}, &course.data, "id=?", course.data.ID); err != nil {
-		return nil, code.ERROR_UPDATE_USER
+		return nil, code.ERROR_UPDATE_COURSE
 	}
 	return nil, code.OK
+}
+
+// =================================================================== 课程详细
+
+type DetailCourses struct {
+}
+
+func DetailCourse(courseID int) (interface{}, code.Code) {
+	return DetailCourses{}.Do(courseID)
+}
+func (d DetailCourses) Do(courseID int) (interface{}, code.Code) {
+	var detail *response.CourseResponse
+	_, err := respository.QueryCourseList(
+		models.Course{},
+		&detail,
+		nil,
+		"start_time",
+		"id=?",
+		courseID,
+	)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	return detail, code.OK
+
 }
 
 // =================================================================== 获取课程分类
 
 type CourseCategory struct {
-	data *request.Pages
 }
 
-func ListCourseCategory(data *request.Pages) (interface{}, code.Code) {
-	return CourseCategory{data: data}.Do()
+func ListCourseCategory() (interface{}, code.Code) {
+	return CourseCategory{}.Do()
 
 }
 func (category CourseCategory) Do() (interface{}, code.Code) {
@@ -146,7 +193,7 @@ func (category CourseCategory) Do() (interface{}, code.Code) {
 	count, err := respository.List(
 		models.CourseCategory{},
 		&categories,
-		category.data,
+		nil,
 		"id",
 		"",
 	)
@@ -154,6 +201,33 @@ func (category CourseCategory) Do() (interface{}, code.Code) {
 		return nil, code.ERROR_DB_OPE
 	}
 	resp.Results = categories
+	resp.Count = count
+	return resp, code.OK
+}
+
+// =================================================================== 获取课程时间表
+
+type CourseSchedule struct {
+}
+
+func ListCourseSchedule() (interface{}, code.Code) {
+	return CourseSchedule{}.Do()
+
+}
+func (schedule CourseSchedule) Do() (interface{}, code.Code) {
+	var durations []*response.ScheduleResponse
+	var resp response.List
+	count, err := respository.List(
+		models.CourseSchedule{},
+		&durations,
+		nil,
+		"id",
+		"",
+	)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	resp.Results = durations
 	resp.Count = count
 	return resp, code.OK
 }

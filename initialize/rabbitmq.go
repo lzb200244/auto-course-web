@@ -25,7 +25,10 @@ func InitRabbitMQ() {
 	global.RabbitMQ = ch
 
 	//初始化mq
-	consumer.InitEmailListener()
+	err = consumer.InitEmailListener()
+	if err != nil {
+		panic("InitEmailListener初始化失败")
+	}
 	//TODO 初始化队列和交换机等操作
 	global.Logger.Debug("rabbitmq初始化成功！")
 

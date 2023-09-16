@@ -16,7 +16,7 @@ Description：
 // QuerySelectCourse 查询选课的课程，带分页，根据条件，带排序，带分类，带标题
 func QuerySelectCourse[T any](model any, data T, pager *request.Pages, title, query, order string, categoryID uint, args ...any) (int64, error) {
 	var count int64
-	sql := global.MysqlDB.Model(model).Order(order)
+	sql := global.MysqlDB.Model(model).Preload("Category").Order(order)
 
 	if categoryID != 0 {
 		sql.Where("category_id=?", categoryID)

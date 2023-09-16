@@ -17,8 +17,8 @@ const (
 
 type User struct {
 	gorm.Model
-	UserName string `json:"username" gorm:"not null;index;comment:用户名称;"`
-	Name     string `json:"name" gorm:"default:'';comment:姓名"`
+	UserName string `json:"username" gorm:"type:varchar(64);not null;index;comment:用户名称;"`
+	Name     string `json:"name" gorm:"type:varchar(32);default:'';comment:姓名"`
 	Password string `json:"password" gorm:"not null;comment:用户密码"`
 	Email    string `json:"email" gorm:"not null;unique;default:'';comment:邮箱"`
 	Avatar   string `json:"avatar" gorm:"default:'';comment:头像"`

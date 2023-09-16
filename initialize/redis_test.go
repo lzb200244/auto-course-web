@@ -9,6 +9,8 @@ import (
 /*
 Created by 斑斑砖 on 2023/9/8.
 Description：
+
+	redis连接测试
 */
 func TestRedisConn(t *testing.T) {
 	InitConfig("../config/dev.conf.yml")

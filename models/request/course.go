@@ -19,7 +19,8 @@ type Course struct {
 	//课程分类
 	CategoryID uint `json:"categoryID" validate:"required"  label:"分类ID"`
 	//	上课时间段
-	Schedule string `json:"schedule" validate:"required"  label:"上课时间段"`
+	Schedule string `json:"schedule"`
+	Duration int    `json:"duration" validate:"required" label:"时间段" gorm:"-"`
 	//	开课时间
 	StartTime int64 `json:"startTime" validate:"required"  label:"开课时间"`
 	EndTime   int64 `json:"endTime" validate:"required"  label:"结束时间"`
@@ -31,6 +32,7 @@ type UpdateCourse struct {
 	Desc       string `json:"desc"    label:"课程描述"`
 	Cover      string `json:"cover"  label:"封面" `
 	Schedule   string `json:"schedule"   label:"上课时间段"`
+	Duration   int    `json:"duration" validate:"required" label:"时间段" gorm:"-"`
 	CategoryID uint   `json:"categoryID" validate:"required"  label:"分类ID"`
 }
 

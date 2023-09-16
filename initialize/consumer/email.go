@@ -23,14 +23,18 @@ type Email struct {
 	channel *amqp.Channel
 }
 
-func InitEmailListener() {
+func InitEmailListener() error {
 	once.Do(func() {
 		EmailConsumer = &Email{
 			channel: global.RabbitMQ,
 		}
 	})
-	EmailConsumer.Declare()
+	err := EmailConsumer.Declare()
+	if err != nil {
+		return err
+	}
 	EmailConsumer.Consumer()
+	return nil
 
 }
 
@@ -77,8 +81,8 @@ func (e Email) Consumer() {
 			var msg *mq.EmailReq
 			err := json.Unmarshal(d.Body, &msg)
 			if err != nil {
-				fmt.Println(err)
-				return
+				//TODO log
+				continue
 			}
 			tencent.SendEmail(
 				msg.Title, msg.Message, msg.Users,
@@ -104,6 +108,7 @@ func (e Email) Product(msg interface{}) {
 			Body:        bytes,
 		})
 	if err != nil {
+		//TODO log
 		return
 	}
 }

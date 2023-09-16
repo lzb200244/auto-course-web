@@ -11,7 +11,6 @@ import (
 	"auto-course-web/models/request"
 	"auto-course-web/models/response"
 	"auto-course-web/respository"
-	"auto-course-web/utils/tencent"
 	"strconv"
 )
 
@@ -220,7 +219,7 @@ func (notice NoticeStudent) Do() (interface{}, code.Code) {
 		Select("email").
 		Where("role_id = ?", auth.Student).Find(&emails)
 	//2. 发送邮件（异步）TODO 消息队列进行处理
-	go tencent.SendEmail("课程通选课通知", "xxx学生：您好,您的课程正在进行选课阶段。", emails)
+	//go tencent.SendEmail("课程通选课通知", "xxx学生：您好,您的课程正在进行选课阶段。", emails)
 	//3. 开启预发布通道 ,不存在时才进行创建,存在了只进行预先通知,不进行再次开启通道
 	global.Redis.SetNX(keys.IsSelectCourseKey, 1, keys.SelectCourseDurationKey)
 	//4. 迁移：待选区课程-》选课区

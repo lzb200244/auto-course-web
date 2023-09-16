@@ -6,6 +6,7 @@ import (
 	"auto-course-web/service"
 	"auto-course-web/utils"
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 /*
@@ -75,7 +76,18 @@ func UpdateCourseController(ctx *gin.Context) {
 }
 
 func DetailCourseController(ctx *gin.Context) {
-
+	courseID := ctx.Param("courseID")
+	val, err := strconv.Atoi(courseID)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, code.GetMsg(code.ERROR_REQUEST_PARAM), nil)
+		return
+	}
+	data, c := service.DetailCourse(val)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), data)
 }
 
 // =================================================================== 课程预发布，缓存预热
@@ -135,13 +147,25 @@ func CancelPublishCourseController(ctx *gin.Context) {
 
 // ListCourseCategoryController 获取课程分类
 func ListCourseCategoryController(ctx *gin.Context) {
-	validate, err := utils.BindValidQuery[request.Pages](ctx)
-	if err != nil {
-		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+
+	// 2. 调用服务
+	data, c := service.ListCourseCategory()
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return
 	}
+	utils.Success(
+		ctx, code.GetMsg(c), data,
+	)
+}
+
+// =================================================================== 时间表
+
+// ListCourseScheduleController 获取课程分类
+func ListCourseScheduleController(ctx *gin.Context) {
+
 	// 2. 调用服务
-	data, c := service.ListCourseCategory(&validate)
+	data, c := service.ListCourseSchedule()
 	if c != code.OK {
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
 		return

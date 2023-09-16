@@ -17,13 +17,13 @@ Description：
 // Role 用户角色对应关系
 type Role struct {
 	gorm.Model
-	Name        string       `json:"name"`
+	Name        string       `json:"name" gorm:"type:varchar(32);"`
 	Permissions []Permission `gorm:"many2many:role_permissions;"`
 }
 
 type Permission struct {
 	gorm.Model
-	Name string `json:"name"`
+	Name string `json:"name" gorm:"type:varchar(32)"`
 }
 
 type Meta struct {
@@ -34,10 +34,11 @@ type Meta struct {
 }
 type Router struct {
 	gorm.Model
-	Name      string  `json:"name" gorm:"not null;comment:标题"`
-	Path      string  `json:"path"  gorm:"not null;comment:路由" `
-	Redirect  string  `json:"redirect"  gorm:"default:'';comment:重定向(针对父路由)"`
-	Component string  `json:"component" gorm:"default:'';comment:路由标识/组件的位置"`
+	//gorm:"type:varchar(32);"
+	Name      string  `json:"name" gorm:"type:varchar(32);not null;comment:标题"`
+	Path      string  `json:"path"  gorm:"type:varchar(64);not null;comment:路由" `
+	Redirect  string  `json:"redirect"  gorm:"type:varchar(64);default:'';comment:重定向(针对父路由)"`
+	Component string  `json:"component" gorm:"type:varchar(64);default:'';comment:路由标识/组件的位置"`
 	Meta      Meta    `json:"meta" gorm:"type:json;comment:附加属性"`
 	Parent    uint    `json:"parent" gorm:"default:1;comment:父级路由ID"`
 	Disable   bool    `json:"disable" gorm:"default:false;comment:是否禁用"`

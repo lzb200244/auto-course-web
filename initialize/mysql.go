@@ -36,6 +36,7 @@ func InitMysql() {
 		NamingStrategy: schema.NamingStrategy{
 			SingularTable: global.Config.Mysql.Singular, // 表明不加s
 		},
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		panic(err)

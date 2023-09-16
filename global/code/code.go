@@ -58,6 +58,7 @@ const (
 	// 课程分类相关
 	ERROR_COURSE_CATEGORY_NOT_EXIST Code = 8006
 	ERROR_COURSE_CATEGORY_EXIST     Code = 8007
+	ERROR_COURSE_SCHEDULE_NOT_EXIST      = 8008
 
 	// code=10000 ... 选课模块
 
@@ -116,6 +117,7 @@ var codeMsg = map[Code]string{
 	//	###################################################################### 课程分类
 	ERROR_COURSE_CATEGORY_NOT_EXIST: "该课程分类不存在",
 	ERROR_COURSE_CATEGORY_EXIST:     "该课程分类已存在",
+	ERROR_COURSE_SCHEDULE_NOT_EXIST: "该时间段不存在",
 	//	###################################################################### 选课
 	ERROR_PRELOAD_COURSE_NOT_OPEN: "预发布未进行开启",
 	ERROR_PRELOAD_COURSE_CLOSE:    "预发布已关闭",
