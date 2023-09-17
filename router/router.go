@@ -4,6 +4,7 @@ import (
 	"auto-course-web/controller"
 	"auto-course-web/global"
 	"auto-course-web/global/code"
+	"auto-course-web/models/request"
 	"auto-course-web/router/middleware"
 	"auto-course-web/router/v1api"
 	"auto-course-web/utils"
@@ -42,10 +43,16 @@ func InitApiRouter() *gin.Engine {
 		authored := v1.Group("")
 		authored.Use(middleware.JWT())
 		{
-			credit := authored.Group("credits")
+			credit := authored.Group("access_token")
 			{
 				credit.GET("kodo", func(context *gin.Context) {
-					utils.Success(context, code.GetMsg(code.OK), qiniu.GetCredits())
+					validate, err := utils.BindValidQuery[request.Bucket](context)
+					if err != nil {
+						utils.Fail(context, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+						return
+					}
+
+					utils.Success(context, code.GetMsg(code.OK), qiniu.GetCredits(validate.Bucket))
 				})
 			}
 			user := authored.Group("users")

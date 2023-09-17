@@ -18,6 +18,7 @@ type Course struct {
 	Credit uint32 `json:"credit" validate:"required,min=0"  label:"学分"`
 	//课程分类
 	CategoryID uint `json:"categoryID" validate:"required"  label:"分类ID"`
+	CollegeID  uint `json:"collegeID" validate:"required"  label:"学院ID"`
 	//	上课时间段
 	Schedule string `json:"schedule"`
 	Duration int    `json:"duration" validate:"required" label:"时间段" gorm:"-"`

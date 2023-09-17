@@ -10,6 +10,7 @@ import (
 	"auto-course-web/respository"
 	"auto-course-web/utils"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 	"strconv"
 )
@@ -55,12 +56,14 @@ func (course Course) create(userID int) (interface{}, code.Code) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, code.ERROR_COURSE_SCHEDULE_NOT_EXIST
 		}
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	course.data.UserID = userID
 	course.data.Schedule = schedule.Duration
 	course.data.Code = "CS" + utils.GenerateRandomCode(5)
 	if _, err := respository.Creat("course", course.data, ""); err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	return course.data, code.OK

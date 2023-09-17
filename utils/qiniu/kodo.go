@@ -13,10 +13,10 @@ Description：
 */
 
 // GetCredits  获取凭证
-func GetCredits() string {
+func GetCredits(bucket string) string {
 	mac := qbox.NewMac(global.Config.Qiniu.AccessKey, global.Config.Qiniu.SecretKey)
 	putPolicy := storage.PutPolicy{
-		Scope: global.Config.Qiniu.Bucket,
+		Scope: bucket,
 	}
 	upToken := putPolicy.UploadToken(mac)
 	return upToken
