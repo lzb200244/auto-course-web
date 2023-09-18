@@ -1,9 +1,13 @@
 package service
 
 import (
+	"auto-course-web/global"
 	"auto-course-web/global/auth"
 	"auto-course-web/global/code"
+	"auto-course-web/global/keys"
+	"auto-course-web/initialize/consumer"
 	"auto-course-web/models"
+	"auto-course-web/models/mq"
 	"auto-course-web/models/request"
 	"auto-course-web/models/response"
 	"auto-course-web/respository"
@@ -23,69 +27,66 @@ Description：
 // ================================================================= 用户注册
 
 type UserRegister struct {
-	Username string
-	Password string
-	Email    string
+	data *request.Register
 }
 
-func NewUser(username string, password string, email string) *UserRegister {
-	return &UserRegister{
-		Username: username, Password: password, Email: email,
-	}
-}
-func Register(username string, password string, email string) (interface{}, code.Code) {
-	return NewUser(username, password, email).Do()
+func Register(data *request.Register) (interface{}, code.Code) {
+	return UserRegister{
+		data: data,
+	}.Do()
 }
 func (r UserRegister) Do() (interface{}, code.Code) {
-	_, c := r.checkExists()
-	if c != code.OK {
+	if _, c := r.checkCode(); c != code.OK {
 		return nil, c
 	}
-	_, c = r.create()
-	if c != code.OK {
+	if _, c := r.checkExists(); c != code.OK {
 		return nil, c
 	}
+	if _, c := r.create(); c != code.OK {
+		return nil, c
+	}
+	return nil, code.OK
+}
+func (r UserRegister) checkCode() (interface{}, code.Code) {
+	result, _ := global.Redis.Get(keys.CodeKey + r.data.Email).Result()
 
+	if result != r.data.Code {
+		return nil, code.ERROR_VERIFICATION_CODE
+	}
 	return nil, code.OK
 }
 
 // 用户是否存在
 func (r UserRegister) checkExists() (interface{}, code.Code) {
-	_, usernameErr := respository.GetOne(&models.User{}, "user_name", r.Username)
-	if usernameErr != nil {
-		if errors.Is(usernameErr, gorm.ErrRecordNotFound) {
-			// 用户名可用
-			// 继续检查邮箱是否已存在
-			_, emailErr := respository.GetOne(&models.User{}, "email", r.Email)
-			if emailErr != nil {
-				if errors.Is(emailErr, gorm.ErrRecordNotFound) {
-					// 邮箱可用
-					return nil, code.OK
-				}
-			}
-			// 邮箱已存在
-			return nil, code.ERROR_EMAIL_EXIST
-		}
-		// 处理其他用户名查询异常
+	exist, err := respository.Exist(&models.User{}, "user_name=?", r.data.Username)
+	if err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
-	// 用户名已存在
-	return nil, code.ERROR_USER_NAME_USED
+	if exist {
+		return nil, code.ERROR_USER_NAME_EXIST
+	}
+	return nil, code.OK
+
 }
 
 // 创建用户
 func (r UserRegister) create() (interface{}, code.Code) {
-	user := models.User{UserName: r.Username, Password: r.Password, Email: r.Email}
+	user := models.User{UserName: r.data.Username, Password: r.data.Password, Email: r.data.Email, RoleID: uint(auth.Student)}
 	if err := user.SetPassword(); err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
+
 	if err := respository.Create(&user); err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	//给用户赋予权限
-	if err := respository.AddUserAuthority(user, auth.Student); err != nil {
-		return nil, code.ERROR_ADD_AUTH
-	}
+	//if err := respository.AddUserAuthority(user, auth.Student); err != nil {
+	//	fmt.Println(err)
+	//	return nil, code.ERROR_ADD_AUTH
+	//}
 
 	return nil, code.OK
 
@@ -234,13 +235,14 @@ func UpdateInfo(userID uint, req *request.UserInfo) (interface{}, code.Code) {
 func (u *UserInfoUpdate) Do(userID uint) (interface{}, code.Code) {
 	//1. 判断新的邮箱是否存在
 	if u.data.Email != "" {
-		ok, _ := respository.Exist(&models.User{}, " id !=? and email=?", u.data.Email, userID)
+		ok, _ := respository.Exist(&models.User{}, " id !=? and email=?", userID, u.data.Email)
 		if ok {
 			return nil, code.ERROR_EMAIL_EXIST
 		}
 	}
 	//2. 更新
 	if err := respository.Updates(&models.User{}, &u.data, "id=?", userID); err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_UPDATE_USER
 	}
 	return &u.data, code.OK
@@ -253,5 +255,54 @@ func (u *UserInfoUpdate) check(userID int) (interface{}, code.Code) {
 			return nil, code.ERROR_EMAIL_EXIST
 		}
 	}
+	return nil, code.OK
+}
+
+// ================================================================= 获取验证码
+
+type Email struct {
+	data *request.SendEmail
+}
+
+func SendEmail(data *request.SendEmail) (interface{}, code.Code) {
+	return Email{
+		data: data,
+	}.Do()
+}
+func (email Email) Do() (interface{}, code.Code) {
+	if _, c := email.check(); c != code.OK {
+		return nil, c
+	}
+	if _, c := email.load2Redis(); c != code.OK {
+		return nil, c
+	}
+	return nil, code.OK
+}
+
+func (email Email) check() (interface{}, code.Code) {
+	//校验邮箱是否存在
+	exist, err := respository.Exist(&models.User{}, "email=?", email.data.Email)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	if exist {
+		return nil, code.ERROR_EMAIL_EXIST
+	}
+	return nil, code.OK
+
+}
+func (email Email) load2Redis() (interface{}, code.Code) {
+	randomCode := utils.GenerateRandomCode(6)
+	if err := global.Redis.Set(
+		keys.CodeKey+email.data.Email, randomCode, keys.CodeKeyDurationKey,
+	).Err(); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	msg := mq.EmailReq{
+		Title:   "验证码",
+		Message: "您的验证码为:" + randomCode,
+		Users:   []string{email.data.Email},
+	}
+	go consumer.EmailConsumer.Product(&msg)
 	return nil, code.OK
 }

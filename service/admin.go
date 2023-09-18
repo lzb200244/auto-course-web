@@ -188,7 +188,7 @@ func (n NoticeTeacher) Do() (interface{}, code.Code) {
 	//2. 发送邮件（异步）
 	//go tencent.SendEmail("课程通预发布通知", "亲爱的老师：您好,您的课程正在进行预发布。", emails)
 	consumer.EmailConsumer.Product(
-		mq.EmailReq{
+		&mq.EmailReq{
 			Title:   "课程通预发布通知",
 			Message: "亲爱的老师：您好,您的课程正在进行预发布。",
 			Users:   emails,

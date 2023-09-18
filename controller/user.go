@@ -25,7 +25,7 @@ func RegisterController(ctx *gin.Context) {
 		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
 		return
 	}
-	_, c := service.Register(validate.Username, validate.Password, validate.Email)
+	_, c := service.Register(&validate)
 	if c != code.OK {
 
 		utils.Fail(ctx, c, code.GetMsg(c), nil)
@@ -50,6 +50,22 @@ func LoginController(ctx *gin.Context) {
 		return
 	}
 	utils.Success(ctx, code.GetMsg(c), data)
+}
+
+// SendEmailController 发送邮件
+func SendEmailController(ctx *gin.Context) {
+	validate, err := utils.BindValidJson[request.SendEmail](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	data, c := service.SendEmail(&validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), data)
+
 }
 
 // =================================================================== 用户相关

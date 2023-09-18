@@ -2,6 +2,7 @@ package tencent
 
 import (
 	"auto-course-web/global"
+	"fmt"
 	"gopkg.in/gomail.v2"
 )
 
@@ -32,6 +33,9 @@ func SendEmail(title, message string, users []string) {
 	)
 	//6. 发送
 	if err := d.DialAndSend(mailer); err != nil {
-		panic(err)
+		//邮箱错误
+		//panic(err)
+		//gomail: could not send email 1: 550 The recipient may contain a non-existent account, please check the recipient address.
+		fmt.Println(err)
 	}
 }

@@ -9,13 +9,17 @@ Description：
 */
 
 type Register struct {
-	Username string `json:"username" validate:"required" label:"用户名"`
-	Password string `json:"password" validate:"required,min=4,max=20" label:"密码"`
-	Email    string `json:"email" validate:"required" label:"邮箱"`
+	Username string `json:"username" validate:"required,min=6,max=20" label:"用户名"`
+	Password string `json:"password" validate:"required,min=6,max=20" label:"密码"`
+	Email    string `json:"email" validate:"required,email" label:"email"`
+	Code     string `json:"code" validate:"required" label:"验证码" gorm:"-"`
 }
 type Login struct {
 	Username string `json:"username" validate:"required" label:"用户名"`
 	Password string `json:"password" validate:"required,min=4,max=20" label:"密码"`
+}
+type SendEmail struct {
+	Email string `json:"email" validate:"required,email" label:"email"`
 }
 
 func (r Register) IsEmpty() bool {

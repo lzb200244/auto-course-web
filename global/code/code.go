@@ -19,7 +19,7 @@ const (
 	ERROR_DB_OPE        Code = 9004
 
 	// code= 1000... 用户模块的错误
-	ERROR_USER_NAME_USED    Code = 1001
+	ERROR_USER_NAME_EXIST   Code = 1001
 	ERROR_PASSWORD_WRONG    Code = 1002
 	ERROR_USER_NOT_EXIST    Code = 1003
 	ERROR_USER_NO_RIGHT     Code = 1009
@@ -81,7 +81,7 @@ var codeMsg = map[Code]string{
 	ERROR_DB_OPE:        "数据库操作异常",
 
 	// ###################################################################### 登录与注册
-	ERROR_USER_NAME_USED:    "用户名已存在",
+	ERROR_USER_NAME_EXIST:   "用户名已存在",
 	ERROR_USER_NOT_EXIST:    "该用户不存在",
 	ERROR_PASSWORD_WRONG:    "密码错误",
 	ERROR_USER_NO_RIGHT:     "该用户无权限",

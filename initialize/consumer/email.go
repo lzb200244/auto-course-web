@@ -60,7 +60,7 @@ func (e Email) Declare() error {
 	return nil
 }
 func (e Email) Consumer() {
-
+	fmt.Println(111)
 	//接收消息
 	results, err := e.channel.Consume(
 		variable.EmailQueue,
@@ -82,6 +82,7 @@ func (e Email) Consumer() {
 			err := json.Unmarshal(d.Body, &msg)
 			if err != nil {
 				//TODO log
+				fmt.Println(err)
 				continue
 			}
 			tencent.SendEmail(
@@ -93,7 +94,7 @@ func (e Email) Consumer() {
 
 }
 
-func (e Email) Product(msg interface{}) {
+func (e Email) Product(msg *mq.EmailReq) {
 	bytes, err := json.Marshal(msg)
 	if err != nil {
 		fmt.Println(err)
@@ -107,7 +108,9 @@ func (e Email) Product(msg interface{}) {
 			ContentType: "text/plain",
 			Body:        bytes,
 		})
+	fmt.Println(msg)
 	if err != nil {
+		fmt.Println(err)
 		//TODO log
 		return
 	}

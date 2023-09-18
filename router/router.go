@@ -37,6 +37,7 @@ func InitApiRouter() *gin.Engine {
 		v1.GET("ping", func(ctx *gin.Context) {
 			utils.Success(ctx, "pong", nil)
 		})
+		v1.POST("users/code", controller.SendEmailController)
 		v1.POST("users/register", controller.RegisterController)
 		v1.POST("users/login", controller.LoginController)
 		// ==================================================================== 需要进行认证的

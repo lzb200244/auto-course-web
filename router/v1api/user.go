@@ -23,7 +23,6 @@ func SetupUser(group *gin.RouterGroup) {
 	group.PUT("/", controller.UpdateInfoController)
 	// 获取用户权限
 	group.GET("/permission", func(context *gin.Context) {
-
 		var routes []*models.Router
 		var r []*models.Router
 		user, _ := utils.GetUser(context)
