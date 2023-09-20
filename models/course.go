@@ -1,5 +1,9 @@
 package models
 
+import (
+	"time"
+)
+
 /*
 Created by 斑斑砖 on 2023/9/6.
 Description：
@@ -54,4 +58,13 @@ type Course struct {
 type CourseSchedule struct {
 	BaseModel
 	Duration string `json:"duration" gorm:"type:varchar(64);"`
+}
+
+// UserCourse 用户选课关系表
+type UserCourse struct {
+	UserID    uint      `json:"userID" gorm:"not null;uniqueIndex:user_course;comment:用户ID"`
+	User      *User     `json:"user" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;comment:用户"`
+	CourseID  uint      `json:"courseID" gorm:"not null;uniqueIndex:user_course;comment:课程ID"`
+	Course    *Course   `json:"course" gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;comment:课程"`
+	CreatedAt time.Time `json:"created_at" comment:"创建时间"`
 }

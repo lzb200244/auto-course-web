@@ -99,9 +99,7 @@ func Creat[T any](model string, data *T, query string, args ...any) (res *T, err
 }
 
 // Delete [批量]删除数据, 通过条件控制可以删除单条数据
-func Delete[T any](data T, query string, args ...any) {
+func Delete[T any](data T, query string, args ...any) error {
 	err := global.MysqlDB.Where(query, args...).Delete(&data).Error
-	if err != nil {
-		panic(err)
-	}
+	return err
 }

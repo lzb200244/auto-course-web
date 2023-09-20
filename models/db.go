@@ -16,7 +16,7 @@ func Migrate() {
 
 	err := global.MysqlDB.AutoMigrate(
 		User{}, Role{}, Permission{}, &Router{}, &College{},
-		&CourseCategory{}, &Course{}, &CourseSchedule{},
+		&CourseCategory{}, &Course{}, &CourseSchedule{}, UserCourse{},
 	)
 	if err != nil {
 		global.Logger.Error("migrate table failed", zap.Any("err", err))

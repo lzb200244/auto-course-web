@@ -5,7 +5,9 @@ import (
 	"auto-course-web/global/code"
 	"auto-course-web/global/election"
 	"auto-course-web/global/keys"
+	"auto-course-web/initialize/consumer"
 	"auto-course-web/models"
+	"auto-course-web/models/mq"
 	"auto-course-web/models/request"
 	"auto-course-web/models/response"
 	"auto-course-web/respository"
@@ -195,18 +197,35 @@ func (create SelectCourse) created(userID int) (interface{}, code.Code) {
 		//课程抢完了
 		return nil, code.ERROR_COURSE_NOT_ENOUGH
 	case election.CourseSuccess:
+
 		//选课成功
 		//1.放入创建记录的消息队列
 		//	1.在mysql创建一条记录
 		//  2.记录日志
+		go consumer.RobConsumer.Product(
+			&mq.CourseReq{
+				CourseID: create.data.ID,
+				UserID:   userID,
+			},
+		)
 		//2. 放入推送的消息队列
 		//
 	case election.CourseWithdraw:
+
 		//退课成功
 		//1.放入退课记录的消息队列
 		//  1.在mysql删除对于记录
 		//  2.记录日志
-		//2. 放入推送的消息队列
+		go consumer.DropConsumer.Product(
+			&mq.CourseReq{
+				CourseID: create.data.ID,
+				UserID:   userID,
+			},
+		)
+		////2. 放入推送的消息队列
+		//go consumer.PushConsumer.Product(
+		//	1,
+		//)
 
 	}
 	return response.ElectionsResponse{

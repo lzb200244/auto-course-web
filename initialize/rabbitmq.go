@@ -35,6 +35,10 @@ func InitRabbitMQ() {
 	if err != nil {
 		panic("InitRobListener初始化失败")
 	}
+	err = consumer.InitDropListener()
+	if err != nil {
+		panic("InitDropListener初始化失败")
+	}
 	err = consumer.InitPushListener()
 
 	if err != nil {
