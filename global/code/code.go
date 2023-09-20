@@ -29,6 +29,7 @@ const (
 	ERROR_VERIFICATION_CODE Code = 1013
 	ERROR_EMAIL_EXIST       Code = 1014
 	ERROR_UPDATE_USER       Code = 1015
+	ERROT_SIGN_ERROR             = 1016
 
 	// code = 1200.. 鉴权相关错误
 	ERROR_TOKEN_NOT_EXIST  Code = 1201
@@ -91,6 +92,7 @@ var codeMsg = map[Code]string{
 	ERROR_EMAIL_EXIST:       "邮箱已存在",
 	ERROR_VERIFICATION_CODE: "验证码错误",
 	ERROR_UPDATE_USER:       "用户更新失败",
+	ERROT_SIGN_ERROR:        "签到失败",
 
 	// ###################################################################### 权限
 	ERROR_TOKEN_NOT_EXIST:  "TOKEN 不存在，请重新登陆",

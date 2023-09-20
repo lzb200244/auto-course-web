@@ -11,14 +11,16 @@ Description：
 */
 type User struct {
 	UserName string `form:"username" json:"username" validate:"required" label:"用户名"`
-	Age      uint8  `form:"age" json:"age" validate:"required,gt=18"`
-	Password string `form:"password" json:"password" validate:"required,max=20,min=6" label:"密码"`
-	Code     string `form:"code" json:"code" validate:"required,len=6" label:"验证码"`
+	//Age      uint8  `form:"age" json:"age" validate:"required,gt=18"`
+	//Password string `form:"password" json:"password" validate:"required,max=20,min=6" label:"密码"`
+	//Code     string `form:"code" json:"code" validate:"required,len=6" label:"验证码"`
+	Sex string `form:"sex" json:"sex" validate:"required,oneof=男 女" label:"性别"`
 }
 
 func TestValidateUtil(t *testing.T) {
 	user := User{
-		Password: "12",
+		UserName: "12",
+		Sex:      "nan",
 	}
 	err := Validator.Validate(&user)
 	if err != nil {

@@ -14,8 +14,11 @@ import (
 	"auto-course-web/utils"
 	"errors"
 	"fmt"
+	"github.com/go-redis/redis"
 	"gorm.io/gorm"
+	"math"
 	"sync"
+	"time"
 )
 
 /*
@@ -168,10 +171,8 @@ func (u *UserInfo) Do(userID, roleID int) (interface{}, code.Code) {
 	//1. 判断用户是否存在
 	userObj, c := u.GetUserObj(userID, roleID)
 	if c != code.OK {
-
 		return nil, c
 	}
-
 	return userObj, code.OK
 }
 func (u *UserInfo) GetUserObj(userID, roleID int) (interface{}, code.Code) {
@@ -198,6 +199,7 @@ func (u *UserInfo) GetUserObj(userID, roleID int) (interface{}, code.Code) {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, code.ERROR_USER_NOT_EXIST
 		}
+		global.Logger.Warn(err.Error())
 		//数据库异常错误
 		return nil, code.ERROR_DB_OPE
 	}
@@ -305,4 +307,67 @@ func (email Email) load2Redis() (interface{}, code.Code) {
 	}
 	go consumer.EmailConsumer.Product(&msg)
 	return nil, code.OK
+}
+
+// ================================================================= 获取我的签到信息
+
+type Sign struct {
+}
+
+func (s Sign) Do(userID int) (interface{}, code.Code) {
+	today := time.Now()
+	year := today.Year()
+	month := today.Month()
+	day := today.Day()
+	key := keys.SignKey + fmt.Sprintf("%d:%d:%d", year, month, userID)
+	//签到
+	if err := global.Redis.SetBit(key, int64(day), 1).Err(); err != nil {
+		return nil, code.ERROT_SIGN_ERROR
+	}
+	return nil, code.OK
+}
+
+func CreateSign(userID int) (interface{}, code.Code) {
+	return Sign{}.Do(userID)
+}
+
+type MySign struct {
+	data *request.SignList
+}
+
+func ListMySign(userID int, data *request.SignList) (interface{}, code.Code) {
+	return MySign{
+		data: data,
+	}.Do(userID)
+}
+func (r MySign) Do(userID int) (interface{}, code.Code) {
+	var signCount, signContinueMax, temp int64
+
+	if r.data.Month == 0 && r.data.Year == 0 {
+		//	本月
+		now := time.Now()
+		r.data.Year = now.Year()
+		r.data.Month = int(now.Month())
+	}
+	//当前月的天数
+	days := utils.CalMonth(r.data.Year, time.Month(r.data.Month))
+	key := keys.SignKey + fmt.Sprintf("%d:%d:%d", r.data.Year, r.data.Month, userID)
+	//签到表
+	var signs = make([]int, days)
+	for i := 0; i < days; i++ {
+		val := global.Redis.GetBit(key, int64(i)).Val()
+		if val == 1 {
+			temp++
+		} else {
+			//统计连续最大签到次数
+			signContinueMax = int64(math.Max(float64(signContinueMax), float64(temp)))
+			temp = 0
+		}
+		signs[i] = int(val)
+	}
+	//签到次数
+	signCount = global.Redis.BitCount(key, &redis.BitCount{Start: 0, End: -1}).Val()
+	return response.NewSignResponse(
+		signs, signCount, signContinueMax,
+	), code.OK
 }

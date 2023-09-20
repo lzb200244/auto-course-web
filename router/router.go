@@ -9,7 +9,9 @@ import (
 	"auto-course-web/router/v1api"
 	"auto-course-web/utils"
 	"auto-course-web/utils/qiniu"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 /*
@@ -18,6 +20,30 @@ Description：
 
 	路由
 */
+
+func WebSocketHandler(c *gin.Context) {
+	// 获取WebSocket连接
+	ws, err := websocket.Upgrade(c.Writer, c.Request, nil, 1024, 1024)
+	if err != nil {
+		panic(err)
+	}
+
+	// 处理WebSocket消息
+	for {
+		fmt.Println(111)
+		messageType, p, err := ws.ReadMessage()
+		if err != nil {
+			break
+		}
+		fmt.Println("messageType:", messageType)
+		fmt.Println("p:", string(p))
+		// 输出WebSocket消息内容
+		c.Writer.Write(p)
+	}
+
+	// 关闭WebSocket连接
+	ws.Close()
+}
 
 func InitApiRouter() *gin.Engine {
 	var router *gin.Engine
@@ -32,7 +58,9 @@ func InitApiRouter() *gin.Engine {
 		router = gin.New()
 		router.Use(gin.Logger())
 	}
+	router.GET("/ws", WebSocketHandler)
 	v1 := router.Group("api/v1")
+
 	{
 		v1.GET("ping", func(ctx *gin.Context) {
 			utils.Success(ctx, "pong", nil)

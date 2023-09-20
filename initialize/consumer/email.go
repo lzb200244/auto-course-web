@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/streadway/amqp"
-	"sync"
 )
 
 /*
@@ -17,22 +16,20 @@ Description：
 */
 
 var EmailConsumer *Email
-var once sync.Once
 
 type Email struct {
 	channel *amqp.Channel
 }
 
 func InitEmailListener() error {
-	once.Do(func() {
-		EmailConsumer = &Email{
-			channel: global.RabbitMQ,
-		}
-	})
+	EmailConsumer = &Email{
+		channel: global.RabbitMQ,
+	}
 	err := EmailConsumer.Declare()
 	if err != nil {
 		return err
 	}
+
 	EmailConsumer.Consumer()
 	return nil
 
@@ -60,7 +57,6 @@ func (e Email) Declare() error {
 	return nil
 }
 func (e Email) Consumer() {
-	fmt.Println(111)
 	//接收消息
 	results, err := e.channel.Consume(
 		variable.EmailQueue,

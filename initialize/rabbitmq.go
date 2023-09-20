@@ -4,6 +4,7 @@ import (
 	"auto-course-web/global"
 	"auto-course-web/initialize/consumer"
 	"github.com/streadway/amqp"
+	"time"
 )
 
 /*
@@ -26,9 +27,25 @@ func InitRabbitMQ() {
 
 	//初始化mq
 	err = consumer.InitEmailListener()
+
 	if err != nil {
 		panic("InitEmailListener初始化失败")
 	}
+	err = consumer.InitRobListener()
+	if err != nil {
+		panic("InitRobListener初始化失败")
+	}
+	err = consumer.InitPushListener()
+
+	if err != nil {
+		panic("InitPushListener初始化失败")
+	}
+	go func() {
+		for true {
+			consumer.PushConsumer.Product("ok")
+			time.Sleep(time.Second)
+		}
+	}()
 	//TODO 初始化队列和交换机等操作
 	global.Logger.Debug("rabbitmq初始化成功！")
 

@@ -95,7 +95,6 @@ func (create SelectCourse) Do(userID int) (interface{}, code.Code) {
 		if count >= keys.SelectCourseMax {
 			return nil, code.ERROR_SELECT_COURSE_BEYOND
 		}
-
 	*/
 	//原子操作
 	data, c := create.created(userID)
@@ -197,14 +196,18 @@ func (create SelectCourse) created(userID int) (interface{}, code.Code) {
 		return nil, code.ERROR_COURSE_NOT_ENOUGH
 	case election.CourseSuccess:
 		//选课成功
-		//data := res[1].(int64)
-		//fmt.Println("选课成功")
-		//创建丢入消息队列进行创建选课记录等操作。
+		//1.放入创建记录的消息队列
+		//	1.在mysql创建一条记录
+		//  2.记录日志
+		//2. 放入推送的消息队列
+		//
 	case election.CourseWithdraw:
-		//data := res[1].(int64)
-		//fmt.Println("退课成功")
+		//退课成功
+		//1.放入退课记录的消息队列
+		//  1.在mysql删除对于记录
+		//  2.记录日志
+		//2. 放入推送的消息队列
 
-		//丢入消息队列进行退课等操作记录
 	}
 	return response.ElectionsResponse{
 		CourseID: create.data.ID,

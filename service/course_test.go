@@ -4,7 +4,6 @@ import (
 	"auto-course-web/global"
 	"auto-course-web/initialize"
 	"auto-course-web/models"
-	"fmt"
 	"testing"
 )
 
@@ -40,7 +39,6 @@ func TestSelectCourse(t *testing.T) {
 	initialize.InitMysql()
 	resp := Resp{}
 	global.MysqlDB.Model(models.Course{}).Preload("Category").Preload("Category.College").Find(&resp)
-	fmt.Println(resp.Category.College)
 	//marshal, err := json.Marshal(resp)
 	//fmt.Println(string(marshal))
 }

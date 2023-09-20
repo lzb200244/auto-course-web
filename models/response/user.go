@@ -33,3 +33,16 @@ func NewUserResponse(ID uint, userName, name, email, desc, avatar, token string,
 		Token:      token,
 	}
 }
+
+type SignResponse struct {
+	//签到表
+	SignTb []int `json:"signTb"`
+	//签到次数
+	SignCount int64 `json:"signCount"`
+	//连续签到次数
+	SignContinueMax int64 `json:"signContinueMax"`
+}
+
+func NewSignResponse(signTb []int, signCount int64, signContinueMax int64) *SignResponse {
+	return &SignResponse{SignTb: signTb, SignCount: signCount, SignContinueMax: signContinueMax}
+}

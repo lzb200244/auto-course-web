@@ -53,4 +53,8 @@ func SetupUser(group *gin.RouterGroup) {
 		//返回根下的所有路由
 		utils.Success(context, code.GetMsg(code.OK), routes)
 	})
+
+	//	用户签到
+	group.POST("/sign", controller.SignController)
+	group.GET("/sign", controller.ListSignController)
 }

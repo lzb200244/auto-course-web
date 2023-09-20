@@ -101,3 +101,34 @@ func UpdateInfoController(ctx *gin.Context) {
 	}
 	utils.Success(ctx, code.GetMsg(c), data)
 }
+
+// =================================================================== 用户签到
+
+func SignController(ctx *gin.Context) {
+	user, _ := utils.GetUser(ctx)
+	//调用服务
+	data, c := service.CreateSign(int(user.ID))
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), data)
+}
+
+// ListSignController 获取签到情况
+func ListSignController(ctx *gin.Context) {
+	user, _ := utils.GetUser(ctx)
+	//参数校验
+	validate, err := utils.BindValidQuery[request.SignList](ctx)
+	if err != nil {
+		utils.Fail(ctx, code.ERROR_REQUEST_PARAM, err.Error(), nil)
+		return
+	}
+	//调用服务
+	data, c := service.ListMySign(int(user.ID), &validate)
+	if c != code.OK {
+		utils.Fail(ctx, c, code.GetMsg(c), nil)
+		return
+	}
+	utils.Success(ctx, code.GetMsg(c), data)
+}
