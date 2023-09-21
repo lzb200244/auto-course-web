@@ -64,20 +64,22 @@ func (r UserRegister) checkCode() (interface{}, code.Code) {
 // 用户是否存在
 func (r UserRegister) checkExists() (interface{}, code.Code) {
 	//先往布隆查看，如果布隆不存在就是一定不存在，存在也有可能不存在
-	exists, err := global.Bloom.Exists(keys.UserBloomKey, r.data.Username)
-	if err != nil {
-		return nil, code.ERROR_DB_OPE
-	}
-	if !exists { // 不存在就一定不存在
-		return nil, code.OK
-	}
+	//exists, err := global.Bloom.Exists(keys.UserBloomKey, r.data.Username)
+	//if err != nil {
+	//	return nil, code.ERROR_DB_OPE
+	//}
+	//if !exists { // 不存在就一定不存在
+	//	return nil, code.OK
+	//}
 	//可能存在，往库检查
 
 	exist, err := respository.Exist(&models.User{}, "user_name=?", r.data.Username)
 	if err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	if exist {
+
 		return nil, code.ERROR_USER_NAME_EXIST
 	}
 	return nil, code.OK
@@ -91,24 +93,28 @@ func (r UserRegister) create() (interface{}, code.Code) {
 		Password: r.data.Password,
 		Email:    r.data.Email,
 		RoleID:   uint(auth.Student),
-		//Avatar: r,
-		Avatar: utils.GenerateAvatar(r.data.Username),
+		Name:     r.data.Username,
+		Desc:     utils.GenerateDesc(),
+		Avatar:   utils.GenerateAvatar(r.data.Username),
 	}
 	if err := user.SetPassword(); err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	//创建操作
 	if err := respository.Create(&user); err != nil {
+		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	//用户名放入布隆过滤器
-	if _, err := global.Bloom.Add(keys.UserBloomKey, r.data.Username); err != nil {
-		return nil, code.ERROR_DB_OPE
-	}
-	//邮箱放入布隆过滤器
-	if _, err := global.Bloom.Add(keys.EmailBloomKey, r.data.Email); err != nil {
-		return nil, code.ERROR_DB_OPE
-	}
+	//if _, err := global.Bloom.Add(keys.UserBloomKey, r.data.Username); err != nil {
+	//
+	//	return nil, code.ERROR_DB_OPE
+	//}
+	////邮箱放入布隆过滤器
+	//if _, err := global.Bloom.Add(keys.EmailBloomKey, r.data.Email); err != nil {
+	//	return nil, code.ERROR_DB_OPE
+	//}
 
 	return nil, code.OK
 

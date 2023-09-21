@@ -11,5 +11,5 @@ Description：
 // GenerateAvatar 生成头像
 // https://api.multiavatar.com/2.png?apikey=dHmzRGLe5hFUsY
 func GenerateAvatar(key string) string {
-	return global.Config.MultiAvatar.Url + key + "?" + global.Config.MultiAvatar.Secret
+	return global.Config.MultiAvatar.Url + key + ".png?apikey=" + global.Config.MultiAvatar.Secret
 }
