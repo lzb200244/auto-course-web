@@ -21,8 +21,7 @@ func InitRedis() {
 	if err := client.Ping().Err(); err != nil {
 		panic(err)
 	}
-	var pwd *string
-	global.Bloom = bloom.NewClient("localhost:6379", "root", pwd)
+	global.Bloom = bloom.NewClient("192.168.10.131:6379", "root", nil)
 
 	global.Redis = client
 	global.Logger.Debug("redis初始化成功！")

@@ -64,13 +64,13 @@ func (r UserRegister) checkCode() (interface{}, code.Code) {
 // 用户是否存在
 func (r UserRegister) checkExists() (interface{}, code.Code) {
 	//先往布隆查看，如果布隆不存在就是一定不存在，存在也有可能不存在
-	//exists, err := global.Bloom.Exists(keys.UserBloomKey, r.data.Username)
-	//if err != nil {
-	//	return nil, code.ERROR_DB_OPE
-	//}
-	//if !exists { // 不存在就一定不存在
-	//	return nil, code.OK
-	//}
+	exists, err := global.Bloom.Exists(keys.UserBloomKey, r.data.Username)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	if !exists { // 不存在就一定不存在
+		return nil, code.OK
+	}
 	//可能存在，往库检查
 
 	exist, err := respository.Exist(&models.User{}, "user_name=?", r.data.Username)
@@ -79,7 +79,6 @@ func (r UserRegister) checkExists() (interface{}, code.Code) {
 		return nil, code.ERROR_DB_OPE
 	}
 	if exist {
-
 		return nil, code.ERROR_USER_NAME_EXIST
 	}
 	return nil, code.OK
@@ -107,14 +106,14 @@ func (r UserRegister) create() (interface{}, code.Code) {
 		return nil, code.ERROR_DB_OPE
 	}
 	//用户名放入布隆过滤器
-	//if _, err := global.Bloom.Add(keys.UserBloomKey, r.data.Username); err != nil {
-	//
-	//	return nil, code.ERROR_DB_OPE
-	//}
-	////邮箱放入布隆过滤器
-	//if _, err := global.Bloom.Add(keys.EmailBloomKey, r.data.Email); err != nil {
-	//	return nil, code.ERROR_DB_OPE
-	//}
+	if _, err := global.Bloom.Add(keys.UserBloomKey, r.data.Username); err != nil {
+
+		return nil, code.ERROR_DB_OPE
+	}
+	//邮箱放入布隆过滤器
+	if _, err := global.Bloom.Add(keys.EmailBloomKey, r.data.Email); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
 
 	return nil, code.OK
 
@@ -273,10 +272,19 @@ func UpdateInfo(userID uint, req *request.UserInfo) (interface{}, code.Code) {
 func (u *UserInfoUpdate) Do(userID uint) (interface{}, code.Code) {
 	//1. 判断新的邮箱是否存在
 	if u.data.Email != "" {
-		ok, _ := respository.Exist(&models.User{}, " id !=? and email=?", userID, u.data.Email)
-		if ok {
-			return nil, code.ERROR_EMAIL_EXIST
+		//布隆查看
+		exists, err := global.Bloom.Exists(keys.EmailBloomKey, u.data.Email)
+		if err != nil {
+			return nil, code.ERROR_DB_OPE
 		}
+		//存在,是否是自己的
+		if exists {
+			ok, _ := respository.Exist(&models.User{}, " id !=? and email=?", userID, u.data.Email)
+			if ok {
+				return nil, code.ERROR_EMAIL_EXIST
+			}
+		}
+
 	}
 	//2. 更新
 	if err := respository.Updates(&models.User{}, &u.data, "id=?", userID); err != nil {
@@ -319,6 +327,15 @@ func (email Email) Do() (interface{}, code.Code) {
 
 func (email Email) check() (interface{}, code.Code) {
 	//校验邮箱是否存在
+	//1. 先在布隆中查看
+	exists, err := global.Bloom.Exists(keys.EmailBloomKey, email.data.Email)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	if !exists {
+		return nil, code.OK
+	}
+
 	exist, err := respository.Exist(&models.User{}, "email=?", email.data.Email)
 	if err != nil {
 		return nil, code.ERROR_DB_OPE
