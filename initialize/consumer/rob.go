@@ -6,11 +6,8 @@ import (
 	"auto-course-web/models"
 	"auto-course-web/models/mq"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/streadway/amqp"
-	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"time"
 )
 
@@ -91,6 +88,12 @@ func (rob Rob) Consumer() {
 				CourseID:  uint(msg.CourseID),
 				CreatedAt: time.Now(),
 			}
+			err = global.MysqlDB.Create(&userCourse).Error
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			/**
 			// ============================================================= 开启事物
 			err = global.MysqlDB.Transaction(func(tx *gorm.DB) error {
 				// Set the isolation level to Serializable
@@ -109,6 +112,8 @@ func (rob Rob) Consumer() {
 			if err != nil {
 				continue
 			}
+
+			*/
 			d.Ack(false)
 		}
 	}()

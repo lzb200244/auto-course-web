@@ -50,6 +50,8 @@ func (r UserRegister) Do() (interface{}, code.Code) {
 	}
 	return nil, code.OK
 }
+
+// 校验邮箱操作
 func (r UserRegister) checkCode() (interface{}, code.Code) {
 	result, _ := global.Redis.Get(keys.CodeKey + r.data.Email).Result()
 
@@ -61,9 +63,18 @@ func (r UserRegister) checkCode() (interface{}, code.Code) {
 
 // 用户是否存在
 func (r UserRegister) checkExists() (interface{}, code.Code) {
+	//先往布隆查看，如果布隆不存在就是一定不存在，存在也有可能不存在
+	exists, err := global.Bloom.Exists(keys.UserBloomKey, r.data.Username)
+	if err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	if !exists { // 不存在就一定不存在
+		return nil, code.OK
+	}
+	//可能存在，往库检查
+
 	exist, err := respository.Exist(&models.User{}, "user_name=?", r.data.Username)
 	if err != nil {
-		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
 	if exist {
@@ -75,21 +86,29 @@ func (r UserRegister) checkExists() (interface{}, code.Code) {
 
 // 创建用户
 func (r UserRegister) create() (interface{}, code.Code) {
-	user := models.User{UserName: r.data.Username, Password: r.data.Password, Email: r.data.Email, RoleID: uint(auth.Student)}
+	user := models.User{
+		UserName: r.data.Username,
+		Password: r.data.Password,
+		Email:    r.data.Email,
+		RoleID:   uint(auth.Student),
+		//Avatar: r,
+		Avatar: utils.GenerateAvatar(r.data.Username),
+	}
 	if err := user.SetPassword(); err != nil {
-		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
-
+	//创建操作
 	if err := respository.Create(&user); err != nil {
-		fmt.Println(err)
 		return nil, code.ERROR_DB_OPE
 	}
-	//给用户赋予权限
-	//if err := respository.AddUserAuthority(user, auth.Student); err != nil {
-	//	fmt.Println(err)
-	//	return nil, code.ERROR_ADD_AUTH
-	//}
+	//用户名放入布隆过滤器
+	if _, err := global.Bloom.Add(keys.UserBloomKey, r.data.Username); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
+	//邮箱放入布隆过滤器
+	if _, err := global.Bloom.Add(keys.EmailBloomKey, r.data.Email); err != nil {
+		return nil, code.ERROR_DB_OPE
+	}
 
 	return nil, code.OK
 
@@ -115,10 +134,21 @@ func (r UserLogin) Do() (interface{}, code.Code) {
 	}
 	return data, code.OK
 }
-func (r UserLogin) checkAndSign() (interface{}, code.Code) {
 
+func (r UserLogin) checkAndSign() (interface{}, code.Code) {
+	//先往bloom查看
+	/*
+		exists, err := global.Bloom.Exists(keys.UserBloomKey, r.Username)
+		if err != nil {
+			fmt.Println(err)
+			return nil, code.ERROR_DB_OPE
+		}
+		if !exists {
+			return nil, code.ERROR_USER_NOT_EXIST
+		}
+
+	*/
 	userObj, err := respository.GetUserInfo(&models.User{}, "user_name", r.Username)
-	fmt.Println(userObj.Role)
 	if err != nil {
 		//不存在该用户
 		if errors.Is(err, gorm.ErrRecordNotFound) {

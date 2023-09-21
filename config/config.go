@@ -22,4 +22,6 @@ type Configuration struct {
 	Qiniu autoload.Qiniu `mapstructure:"qiniu" json:"qiniu" yaml:"qiniu"`
 	//邮件配置
 	Email autoload.Email `mapstructure:"email" json:"email" yaml:"email"`
+
+	MultiAvatar autoload.MultiAvatar `mapstructure:"multiavatar" json:"multiavatar" yaml:"multiavatar"`
 }

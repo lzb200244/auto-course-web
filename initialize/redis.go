@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"auto-course-web/global"
+	bloom "github.com/RedisBloom/redisbloom-go"
 	"github.com/go-redis/redis"
 )
 
@@ -20,6 +21,9 @@ func InitRedis() {
 	if err := client.Ping().Err(); err != nil {
 		panic(err)
 	}
+	var pwd *string
+	global.Bloom = bloom.NewClient("localhost:6379", "root", pwd)
+
 	global.Redis = client
 	global.Logger.Debug("redis初始化成功！")
 }

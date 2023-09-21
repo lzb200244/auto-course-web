@@ -2,6 +2,7 @@ package global
 
 import (
 	"auto-course-web/config"
+	bloom "github.com/RedisBloom/redisbloom-go"
 	"github.com/go-redis/redis"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
@@ -14,4 +15,5 @@ var (
 	Logger   *zap.Logger          // logger实例
 	Redis    *redis.Client
 	RabbitMQ *amqp.Channel
+	Bloom    *bloom.Client // 布隆过滤器基于redis
 )

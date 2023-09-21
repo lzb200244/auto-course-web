@@ -19,6 +19,7 @@ const (
 	PreLoadCourseListKey = "course:preload:set" //set
 
 	// ====================================== 选课阶段
+
 	SelectCourseMax         = 5
 	IsSelectCourseKey       = "selection:status"  //是否开启选课阶段
 	SelectCourseDurationKey = time.Second * 120   //key过期时间

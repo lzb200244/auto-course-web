@@ -56,3 +56,6 @@ rabbitmq:
   username: 'guest'
   password: 'guest'
   vhost: '/'
+multiavatar:
+  secret: "dHmzRGLe5hFUsY"
+  url: "https://api.multiavatar.com/"
